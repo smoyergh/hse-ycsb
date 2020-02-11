@@ -156,6 +156,11 @@ LICENSE file.
     <voldemort.version>0.81</voldemort.version>
     <tablestore.version>4.8.0</tablestore.version>
     <voltdb.version>9.1.1</voltdb.version>
+
+    <bdb.version>0.1</bdb.version>
+    <nfkvs.version>0.1</nfkvs.version>
+    <trocksdb.version>6.1.2</trocksdb.version>
+    <wiredtiger.version>0.1</wiredtiger.version>
   </properties>
 
   <modules>
@@ -215,6 +220,11 @@ LICENSE file.
     <module>tablestore</module>
     <!--<module>voldemort</module>-->
     <module>voltdb</module>
+
+    <!--<module>bdb</module>-->
+    <module>nfkvs</module>
+    <module>trocksdb</module>
+    <module>wiredtiger</module>
   </modules>
 
   <build>
