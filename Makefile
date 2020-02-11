@@ -169,7 +169,7 @@ publish:
 #
 rpm: dist srcs rpm_ycsblibs
 	cp hse-ycsb.spec $(RPMSRCDIR)
-	cp distribution/target/ycsb-0.18.0-SNAPSHOT.tar.gz $(RPMSRCDIR)
+	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
 		--define="nfversion $(NFVERSION)" \

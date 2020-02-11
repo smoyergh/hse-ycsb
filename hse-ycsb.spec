@@ -11,7 +11,7 @@ Vendor: Micron Technology
 Requires: java-headless javapackages-tools python
 Obsoletes: mse-ycsb
 
-Source0: ycsb-0.18.0-SNAPSHOT.tar.gz
+Source0: ycsb-0.17.0.tar.gz
 Source1: ycsblibs.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -50,16 +50,16 @@ YCSB with custom bindings for Native Flash Engine users
 mkdir -p %{buildroot}%{__ycsb}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_libdir}
-mv -v ycsb-0.18.0-SNAPSHOT/bin %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/lib %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/mongodb-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/nfkvs-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/rocksdb-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/trocksdb-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/wiredtiger-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/workloads %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/LICENSE.txt %{buildroot}%{__ycsb}
-mv -v ycsb-0.18.0-SNAPSHOT/NOTICE.txt %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/bin %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/lib %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/mongodb-binding %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/nfkvs-binding %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/rocksdb-binding %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/trocksdb-binding %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/wiredtiger-binding %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/workloads %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/LICENSE.txt %{buildroot}%{__ycsb}
+mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
 mv -v ycsblibs/libwiredtiger-2.9.1.so %{buildroot}%{_libdir}
 mv -v ycsblibs/libwiredtiger_java.so %{buildroot}%{_libdir}
 mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
@@ -97,6 +97,7 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %changelog
 * Tue Feb 11 2020 Tom Blamer <tblamer@micron.com> - 2020.02.11
 - Rebase on master (currenty 0.18.0-SNAPSHOT)
+- Backport to release 0.17.0
 
 * Thu Feb 6 2020 Tom Blamer <tblamer@micron.com> - 2020.02.06
 - Convert recordcount and operationcount variables from int to long
