@@ -177,7 +177,7 @@ LICENSE file.
     <module>asynchbase</module>
     <module>azurecosmos</module>
     <module>azuretablestorage</module>
-    <module>cassandra</module>
+    <!--<module>cassandra</module>--> <!-- FIXME -->
     <module>cloudspanner</module>
     <module>couchbase</module>
 		<module>couchbase2</module>
@@ -200,8 +200,7 @@ LICENSE file.
     <module>infinispan</module>
     <module>jdbc</module>
     <module>kudu</module>
-    <!--<module>mapkeeper</module>-->
-    <module>maprdb</module>
+    <!--<module>maprdb</module>--> <!-- FIXME -->
     <module>maprjsondb</module>
     <module>memcached</module>
     <module>mongodb</module>
@@ -214,8 +213,8 @@ LICENSE file.
     <module>riak</module>
     <module>rocksdb</module>
     <module>s3</module>
-    <module>solr</module>
-    <module>solr6</module>
+    <!--<module>solr</module>--> <!-- FIXME -->
+    <!--<module>solr6</module>--><!-- FIXME -->
     <module>tarantool</module>
     <module>tablestore</module>
     <!--<module>voldemort</module>-->

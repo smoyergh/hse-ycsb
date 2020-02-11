@@ -69,11 +69,13 @@ LICENSE file.
       <artifactId>asynchbase-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!-- FIXME
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>cassandra-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>cloudspanner-binding</artifactId>
@@ -199,11 +201,13 @@ LICENSE file.
       <artifactId>memcached-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!-- FIXME
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>maprdb-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>maprjsondb-binding</artifactId>
@@ -259,16 +263,20 @@ LICENSE file.
       <artifactId>s3-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!-- FIXME
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>solr-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+-->
+<!-- FIXME
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>solr6-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>tarantool-binding</artifactId>
