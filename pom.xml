@@ -156,6 +156,11 @@ LICENSE file.
     <voldemort.version>0.81</voldemort.version>
     <tablestore.version>4.8.0</tablestore.version>
     <voltdb.version>9.1.1</voltdb.version>
+
+    <bdb.version>0.1</bdb.version>
+    <nfkvs.version>0.1</nfkvs.version>
+    <trocksdb.version>6.1.2</trocksdb.version>
+    <wiredtiger.version>0.1</wiredtiger.version>
   </properties>
 
   <modules>
@@ -172,7 +177,7 @@ LICENSE file.
     <module>asynchbase</module>
     <module>azurecosmos</module>
     <module>azuretablestorage</module>
-    <module>cassandra</module>
+    <!--<module>cassandra</module>--> <!-- FIXME -->
     <module>cloudspanner</module>
     <module>couchbase</module>
 		<module>couchbase2</module>
@@ -195,8 +200,7 @@ LICENSE file.
     <module>infinispan</module>
     <module>jdbc</module>
     <module>kudu</module>
-    <!--<module>mapkeeper</module>-->
-    <module>maprdb</module>
+    <!--<module>maprdb</module>--> <!-- FIXME -->
     <module>maprjsondb</module>
     <module>memcached</module>
     <module>mongodb</module>
@@ -209,12 +213,17 @@ LICENSE file.
     <module>riak</module>
     <module>rocksdb</module>
     <module>s3</module>
-    <module>solr</module>
-    <module>solr6</module>
+    <!--<module>solr</module>--> <!-- FIXME -->
+    <!--<module>solr6</module>--><!-- FIXME -->
     <module>tarantool</module>
     <module>tablestore</module>
     <!--<module>voldemort</module>-->
     <module>voltdb</module>
+
+    <!--<module>bdb</module>-->
+    <module>nfkvs</module>
+    <module>trocksdb</module>
+    <module>wiredtiger</module>
   </modules>
 
   <build>
