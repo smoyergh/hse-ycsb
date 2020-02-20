@@ -1,6 +1,6 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.02.11
+Version: 2020.02.19
 Release: 1%{nfsha}%{ycsbsha}
 License: ASL 2.0
 Group: Unspecified
@@ -95,6 +95,9 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
+* Wed Feb 19 2020 Tom Blamer <tblamer@micron.com> - 2020.02.19
+- Revert long variable conversion
+
 * Tue Feb 11 2020 Tom Blamer <tblamer@micron.com> - 2020.02.11
 - Rebase on master (currenty 0.18.0-SNAPSHOT)
 - Backport to release 0.17.0
