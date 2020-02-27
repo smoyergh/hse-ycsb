@@ -17,7 +17,7 @@ LICENSE file.
 
 ## Quick Start
 
-This section describes how to run YCSB on NFKVS.
+This section describes how to run YCSB on HSE.
 
 ### 1. Set Up YCSB
 
@@ -34,24 +34,24 @@ Clone the YCSB git repository and compile:
 
 Now you are ready to run! First, load the data:
 
-    ./bin/ycsb load nfkvs -s -P workloads/workloada -p nfkvs.kvs_path=mp1/db1/kvs1
+    ./bin/ycsb load hse -s -P workloads/workloada -p hse.kvs_path=mp1/kvs1
 
 Then, run the workload:
 
-    ./bin/ycsb run nfkvs -s -P workloads/workloada -p nfkvs.kvs_path=mp1/db1/kvs1
+    ./bin/ycsb run hse -s -P workloads/workloada -p hse.kvs_path=mp1/kvs1
 
 See the next section for the list of configuration parameters for NFKVS.
 
 ## NFKVS Configuration Parameters
 
-1. `nfkvs.kvs_path`: The full path of the KVS storing the YCSB data, e.g. `mp1/db1/kvs1`
-2. `nfkvs.kvdb_rparams`: KVDB rparams in `key=value` format, separated by commas (,).
-3. `nfkvs.kvs_rparams`: KVS rparams in `key=value` format, separated by commas (,).
-4. `nfkvs.pfxlen`: Prefix length to be used in cursor scans.
+1. `hse.kvs_path`: The full path of the KVS storing the YCSB data, e.g. `mp1/kvs1`
+2. `hse.kvdb_rparams`: KVDB rparams in `key=value` format, separated by commas (,).
+3. `hse.kvs_rparams`: KVS rparams in `key=value` format, separated by commas (,).
+4. `hse.pfxlen`: Prefix length to be used in cursor scans.
 
 Some older property names are supported for compatibility with scripts:
-- `nfkvs_mpool_name`
-- `nfkvs_kvs_name` (<kvdbname>/<kvsname> format)
-- `nfkvs_pfxlen`
+- `hse_mpool_name`
+- `hse_kvs_name` (<kvdbname>/<kvsname> format)
+- `hse_pfxlen`
 - `kvdb_params`
 - `kvs_params`

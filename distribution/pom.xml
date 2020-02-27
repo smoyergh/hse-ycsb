@@ -302,7 +302,7 @@ LICENSE file.
 
     <dependency>
       <groupId>site.ycsb</groupId>
-      <artifactId>nfkvs-binding</artifactId>
+      <artifactId>hse-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
 
