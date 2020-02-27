@@ -165,15 +165,14 @@ public class HseYcsbClient extends DB {
 
         if (null != kvsPath) {
           String[] names = kvsPath.split("/");
-          if (names.length != 3 ||
-              names[0].length() < 1 || names[1].length() < 1 || names[2].length() < 1)
-          {
+          if (names.length != 2 ||
+              names[0].length() < 1 || names[1].length() < 1) {
             LOGGER.error("invalid kvs path [" + kvsPath + "]");
             System.exit(1);
           }
 
           mpoolName = names[0];
-          kvsName = names[1] + "/" + names[2];
+          kvsName = names[0] + "/" + names[1];
         } else {
           mpoolName = getMpoolNameParam(props);
           kvsName = getKvsNameParam(props);

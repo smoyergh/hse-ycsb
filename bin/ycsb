@@ -108,10 +108,7 @@ DATABASES = {
     "solr6"        : "site.ycsb.db.solr6.SolrClient",
     "tarantool"    : "site.ycsb.db.TarantoolClient",
     "tablestore"   : "site.ycsb.db.tablestore.TableStoreClient",
-
-    "nfkvs"        : "site.ycsb.db.NfKvsYcsbClient",
-    "trocksdb"     : "site.ycsb.db.TRocksDBClient",
-    "wiredtiger"   : "site.ycsb.db.WiredtigerYcsbClient",
+    "hse"          : "site.ycsb.db.HseYcsbClient",
 }
 
 OPTIONS = {
