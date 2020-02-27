@@ -65,12 +65,12 @@ include /usr/share/mse/mse-rpm.mk
 # variables for prebuilt jars/binaries
 #
 
-NFKVS_JAR:="/usr/share/hse/jni/nfkvsjni.jar"
+HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
 
-NFVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
-NFRELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
-# NFRELEASE:=$(shell rpm -q hse --qf "%{RELEASE}")
-NFSHA:=.$(word 3,$(subst ., ,$(shell rpm -q hse --qf "%{RELEASE}")))
+HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
+RELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
+# HSERELEASE:=$(shell rpm -q hse --qf "%{RELEASE}")
+HSESHA:=.$(word 3,$(subst ., ,$(shell rpm -q hse --qf "%{RELEASE}")))
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
@@ -81,7 +81,7 @@ check-hse:
 	#
 	# User or Jenkins must install hse before executing this makefile.
 	#
-	@if [ ! -f /usr/share/hse/jni/nfkvsjni.jar ]; \
+	@if [ ! -f /usr/share/hse/jni/hsejni.jar ]; \
 	then \
 	    echo "Missing hse RPM!  Cannot build!"; \
 	    exit 1; \
@@ -94,8 +94,8 @@ cleanbuilds:
 	rm -rf $(TOPDIR)/{BUILD,RPMS,SRPMS}
 
 dist: check-hse
-	mvn install:install-file -Dfile=$(NFKVS_JAR) -DgroupId=test.org.nfkvs\
-		-DartifactId=nfkvs -Dversion=0.1 -Dpackaging=jar
+	mvn install:install-file -Dfile=$(HSE_JAR) -DgroupId=test.org.hse\
+		-DartifactId=hse -Dversion=0.1 -Dpackaging=jar
 	mvn clean package
 
 help:
@@ -111,8 +111,8 @@ rpm: dist srcs
 	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
-		--define="nfversion $(NFVERSION)" \
-		--define="nfsha $(NFSHA)" \
+		--define="hseversion $(HSEVERSION)" \
+		--define="hsesha $(HSESHA)" \
 		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
 		$(RPMSRCDIR)/hse-ycsb.spec

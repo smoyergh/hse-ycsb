@@ -157,7 +157,7 @@ LICENSE file.
     <tablestore.version>4.8.0</tablestore.version>
     <voltdb.version>9.1.1</voltdb.version>
 
-    <nfkvs.version>0.1</nfkvs.version>
+    <hse.version>0.1</hse.version>
   </properties>
 
   <modules>
@@ -217,7 +217,7 @@ LICENSE file.
     <!--<module>voldemort</module>-->
     <module>voltdb</module>
 
-    <module>nfkvs</module>
+    <module>hse</module>
   </modules>
 
   <build>

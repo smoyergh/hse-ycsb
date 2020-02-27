@@ -15,9 +15,9 @@ import site.ycsb.ByteIterator;
 import site.ycsb.DB;
 import site.ycsb.Status;
 import site.ycsb.workloads.CoreWorkload;
-import org.micron.nfkvs.API;
-import org.micron.nfkvs.NFKVSEOFException;
-import org.micron.nfkvs.NFKVSGenException;
+import org.micron.hse.API;
+import org.micron.hse.HSEEOFException;
+import org.micron.hse.HSEGenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +26,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * @author jjacob
  */
-public class NfKvsYcsbClient extends DB {
-  private static final Logger LOGGER = LoggerFactory.getLogger(NfKvsYcsbClient.class);
+public class HseYcsbClient extends DB {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HseYcsbClient.class);
 
-  private static API nfAPI;
+  private static API hseAPI;
   private static int valBufSize = 4096; // default
 
   private static final AtomicInteger INIT_COUNT = new AtomicInteger(0);
@@ -87,29 +87,29 @@ public class NfKvsYcsbClient extends DB {
   }
 
   private String getKvsPathParam(Properties props) {
-    return props.getProperty("nfkvs.kvs_path");
+    return props.getProperty("hse.kvs_path");
   }
 
   private String getMpoolNameParam(Properties props) {
-    String mpoolName = props.getProperty("nfkvs.mpool_name");
+    String mpoolName = props.getProperty("hse.mpool_name");
     if (mpoolName == null)   {
-      mpoolName = props.getProperty("nfkvs_mpool_name");
+      mpoolName = props.getProperty("hse_mpool_name");
     }
 
     return mpoolName;
   }
 
   private String getKvsNameParam(Properties props) {
-    String kvsName = props.getProperty("nfkvs.kvs_name");
+    String kvsName = props.getProperty("hse.kvs_name");
     if (kvsName == null)   {
-      kvsName = props.getProperty("nfkvs_kvs_name");
+      kvsName = props.getProperty("hse_kvs_name");
     }
 
     return kvsName;
   }
 
   private String getKvdbRParamsParam(Properties props) {
-    String kvdbParams = props.getProperty("nfkvs.kvdb_rparams");
+    String kvdbParams = props.getProperty("hse.kvdb_rparams");
     if (kvdbParams == null)   {
       kvdbParams = props.getProperty("kvdb_params");
     }
@@ -122,7 +122,7 @@ public class NfKvsYcsbClient extends DB {
   }
 
   private String getKvsRParamsParam(Properties props) {
-    String kvsParams = props.getProperty("nfkvs.kvs_rparams");
+    String kvsParams = props.getProperty("hse.kvs_rparams");
     if (kvsParams == null)   {
       kvsParams = props.getProperty("kvs_params");
     }
@@ -135,9 +135,9 @@ public class NfKvsYcsbClient extends DB {
   }
 
   private String getPfxlenParam(Properties props) {
-    String pfxlen = props.getProperty("nfkvs.pfxlen");
+    String pfxlen = props.getProperty("hse.pfxlen");
     if (pfxlen == null)   {
-      pfxlen = props.getProperty("nfkvs_pfxlen");
+      pfxlen = props.getProperty("hse_pfxlen");
     }
 
     return pfxlen;
@@ -152,8 +152,8 @@ public class NfKvsYcsbClient extends DB {
     INIT_COUNT.incrementAndGet();
 
     synchronized (INIT_COUNT) {
-      if (nfAPI == null) {
-        nfAPI = new API();
+      if (hseAPI == null) {
+        hseAPI = new API();
         API.loadLibrary();
 
         Properties props = getProperties();
@@ -180,19 +180,19 @@ public class NfKvsYcsbClient extends DB {
         }
 
         if (null == mpoolName || null == kvsName) {
-          LOGGER.error("nfkvs.kvs_path not configured");
+          LOGGER.error("hse.kvs_path not configured");
           System.exit(1);
         }
 
         String kvdbParams = getKvdbRParamsParam(props);
         if (null == kvdbParams) {
-          LOGGER.info("property nfkvs.kvdb_rparams not specified, using default configuration");
+          LOGGER.info("property hse.kvdb_rparams not specified, using default configuration");
           kvdbParams = "";
         }
 
         String kvsParams = getKvsRParamsParam(props);
         if (null == kvsParams) {
-          LOGGER.info("property nfkvs.kvs_rparams not specified, using default configuration");
+          LOGGER.info("property hse.kvs_rparams not specified, using default configuration");
           kvsParams = "";
         }
 
@@ -237,12 +237,12 @@ public class NfKvsYcsbClient extends DB {
         LOGGER.info("kvs_rparams=\"" + kvsParams + "\"");
 
         try {
-          nfAPI.init(valBufSize);
-          nfAPI.open((short) 1, mpoolName, kvsName, kvdbParams, kvsParams,
+          hseAPI.init(valBufSize);
+          hseAPI.open((short) 1, mpoolName, kvsName, kvdbParams, kvsParams,
                      10, "cfgArgv");
-        } catch (NFKVSGenException e) {
+        } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.error("Could not open NFKVS with mpool name [" + mpoolName + "] and kvs name ["
+          LOGGER.error("Could not open HSE with mpool name [" + mpoolName + "] and kvs name ["
               + kvsName + "]");
           System.exit(1);
         }
@@ -260,10 +260,10 @@ public class NfKvsYcsbClient extends DB {
       // Close only for the last one
       if (INIT_COUNT.decrementAndGet() == 0) {
         try {
-          nfAPI.close();
-        } catch (NFKVSGenException e) {
+          hseAPI.close();
+        } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.warn("Could not close NFKVS");
+          LOGGER.warn("Could not close HSE");
         }
       }
     }
@@ -273,11 +273,11 @@ public class NfKvsYcsbClient extends DB {
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
     try {
       byte[] keyA = key.getBytes();
-      byte[] valA = nfAPI.get(keyA);
+      byte[] valA = hseAPI.get(keyA);
       // TODO how does API handle not found?
       deserializeValues(valA, fields, result);
       return Status.OK;
-    } catch (NFKVSGenException e) {
+    } catch (HSEGenException e) {
       e.printStackTrace();
       return Status.ERROR;
     }
@@ -294,14 +294,14 @@ public class NfKvsYcsbClient extends DB {
     try {
       curPfx = getKvsPfx(startkey);
       curPfxLen = (curPfx != null) ? curPfx.length() : 0;
-      nfAPI.createCursor(curPfx, curPfxLen);
-    } catch (NFKVSGenException e) {
+      hseAPI.createCursor(curPfx, curPfxLen);
+    } catch (HSEGenException e) {
       e.printStackTrace();
       return Status.ERROR;
     }
 
     try {
-      byte[] foundkey = nfAPI.seek(startkey.getBytes());
+      byte[] foundkey = hseAPI.seek(startkey.getBytes());
       if (foundkey == null || foundkey.length == 0) {
         LOGGER.error("Nothing found in scan for startkey=" + startkey);
         return Status.ERROR;
@@ -314,7 +314,7 @@ public class NfKvsYcsbClient extends DB {
       do {
         try {
           for (; i < recordcount; i++) {
-            byte[] value = nfAPI.read();
+            byte[] value = hseAPI.read();
 
             HashMap<String, ByteIterator> map = new HashMap<>();
 
@@ -322,7 +322,7 @@ public class NfKvsYcsbClient extends DB {
             result.add(map);
           }
           break;
-        } catch (NFKVSEOFException e) {
+        } catch (HSEEOFException e) {
           curPfx = getNextPfx(curPfx);
           // Do nothing if this is a non-prefixed cursor or is the last prefix.
           if (curPfx == null) {
@@ -346,11 +346,11 @@ public class NfKvsYcsbClient extends DB {
             curPfxLen = 0;
           }
 
-          nfAPI.destroyCursor();
-          nfAPI.createCursor(curPfx, curPfxLen);
+          hseAPI.destroyCursor();
+          hseAPI.createCursor(curPfx, curPfxLen);
 
           if (tmpPfx != null) {
-            foundkey = nfAPI.seek(tmpPfx.getBytes());
+            foundkey = hseAPI.seek(tmpPfx.getBytes());
             if (foundkey == null || foundkey.length == 0) {
               // do nothing
               break;
@@ -358,13 +358,13 @@ public class NfKvsYcsbClient extends DB {
           }
         }
       } while(true);
-    } catch (NFKVSGenException e) {
+    } catch (HSEGenException e) {
       e.printStackTrace();
       status = Status.ERROR;
     } finally {
       try {
-        nfAPI.destroyCursor();
-      } catch (NFKVSGenException e) {
+        hseAPI.destroyCursor();
+      } catch (HSEGenException e) {
         e.printStackTrace();
       }
     }
@@ -379,8 +379,8 @@ public class NfKvsYcsbClient extends DB {
       byte[] keyB = key.getBytes();
       byte[] valB = serializeValues(values);
 
-      nfAPI.put(keyB, valB);
-    } catch (IOException | NFKVSGenException e) {
+      hseAPI.put(keyB, valB);
+    } catch (IOException | HSEGenException e) {
       e.printStackTrace();
       status = Status.ERROR;
     }
@@ -394,8 +394,8 @@ public class NfKvsYcsbClient extends DB {
       byte[] keyB = key.getBytes();
       byte[] valB = serializeValues(values);
 
-      nfAPI.put(keyB, valB);
-    } catch (IOException | NFKVSGenException e) {
+      hseAPI.put(keyB, valB);
+    } catch (IOException | HSEGenException e) {
       e.printStackTrace();
       status = Status.ERROR;
     }
@@ -406,8 +406,8 @@ public class NfKvsYcsbClient extends DB {
   public Status delete(String table, String key) {
     Status status = Status.OK;
     try {
-      nfAPI.del(key.getBytes());
-    } catch (NFKVSGenException e) {
+      hseAPI.del(key.getBytes());
+    } catch (HSEGenException e) {
       e.printStackTrace();
       status = Status.ERROR;
     }
