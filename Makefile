@@ -29,7 +29,7 @@ Products:
 
   RPMs currently use the following format for their release string:
 
-     RELEASENUM.NFSHA.noarch
+     RELEASENUM.HSESHA.noarch
 endef
 
 ifdef NOTMP
@@ -43,7 +43,7 @@ endif
 #
 # RHEL 7 needs to use SCL as follows -
 #
-# scl enable rh-maven33 devtoolset-7 rh-maven33 "make rpm"
+# scl enable rh-maven33 devtoolset-7  "make rpm"
 #
 # Fedora 25 needs to use the toolchain from /shared as follows -
 #
@@ -65,40 +65,7 @@ include /usr/share/mse/mse-rpm.mk
 # variables for prebuilt jars/binaries
 #
 
-# git clone ssh://git@bitbucket.micron.com/sbusw/db.git
-# cd db/build_unix/ && ../dist/configure --enable-java && make -j
-# ls -l db/build_unix/db.jar
-# ls -l db/build_unix/.libs/libdb_java-6.1.so
-BDB_JAR:="$(TOOLSDIR)/bdb/libdb-6.1.26/db.jar"
-
-
 NFKVS_JAR:="/usr/share/hse/jni/nfkvsjni.jar"
-
-# git clone -b v5.4.6 /shared/git/mirrors/rocksdb.git
-# cd rocksdb && JAVA_HOME=/etc/alternatives/java_sdk make rocksdbjavastatic -j
-ROCKSDB_VERSION:="5.17.2"
-ROCKSDB_JAR:="target/rocksdb/java/target/rocksdbjni-$(ROCKSDB_VERSION)-linux64.jar"
-
-TROCKSDB_VERSION:="6.1.2"
-TROCKSDB_JAR:="target/trocksdb/java/target/rocksdbjni-$(TROCKSDB_VERSION)-linux64.jar"
-
-#
-# BUILDING WIREDTIGER
-#
-# The following commands build WiredTiger with the latest GCC toolchain on RHEL 7.
-# The artifacts should work on any RHEL 7 release or newer distro.
-#
-# cd $HOME/repos/hse-mongo/src/third_party/wiredtiger
-# scl enable devtoolset-9 "rm -f build_posix/aclocal/libtool.m4 build_posix/aclocal/lt*.m4 && ./autogen.sh && ./configure --enable-java --enable-snappy && make -j$(nproc)"
-#
-# mkdir /shared/tools/wiredtiger/mongodb-$MONGOVERSION
-# cp wiredtiger.jar .libs/libwiredtiger-2.9.2.so ./lang/java/.libs/libwiredtiger_java.so ./ext/compressors/snappy/.libs/libwiredtiger_snappy.so /shared/tools/wiredtiger/mongodb-$MONGOVERSION
-#
-
-WIREDTIGER_JAR="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/wiredtiger.jar"
-WIREDTIGER_JAVALIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger_java.so"
-WIREDTIGER_SNAPPYLIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger_snappy.so"
-WIREDTIGER_LIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger-2.9.2.so"
 
 NFVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
 NFRELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
@@ -107,21 +74,16 @@ NFSHA:=.$(word 3,$(subst ., ,$(shell rpm -q hse --qf "%{RELEASE}")))
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
-# original download sites are offline
-# need to pass these through to the rocksdb repo Makefile
-BZIP2_DOWNLOAD_BASE="http://sbu-web.micron.com/sources/bzip2"
-SNAPPY_DOWNLOAD_BASE="http://sbu-web.micron.com/sources/snappy"
-
 .PHONY: all check-hse cleansrcs dist help publish srcs rpm
 all:	rpm
 
 check-hse:
 	#
-	# User or Jenkins must install hse-test before executing this makefile.
+	# User or Jenkins must install hse before executing this makefile.
 	#
 	@if [ ! -f /usr/share/hse/jni/nfkvsjni.jar ]; \
 	then \
-	    echo "Missing hse-test RPM!  Cannot build!"; \
+	    echo "Missing hse RPM!  Cannot build!"; \
 	    exit 1; \
 	fi
 
@@ -131,39 +93,10 @@ cleansrcs:
 cleanbuilds:
 	rm -rf $(TOPDIR)/{BUILD,RPMS,SRPMS}
 
-trocksdbjar:
-	@if [ -n "$(REBUILD_TROCKSDB_JNI)" ]; \
-	then \
-	    rm -rf target/trocksdb; \
-	    git clone /shared/git/mirrors/trocksdb.git target/trocksdb && \
-	    cd target/trocksdb && \
-            sed -i '/JAVA_HOME =/d' Makefile && \
-	    JAVA_HOME=/etc/alternatives/java_sdk make rocksdbjavastatic -j$(shell nproc); \
-        else \
-            mkdir -p `dirname $(TROCKSDB_JAR)` && \
-	    cp /shared/static/jarfiles/trocksdb/rocksdbjni-$(TROCKSDB_VERSION)-linux64.jar $(TROCKSDB_JAR); \
-	fi
-
-dist: check-hse trocksdbjar
-	mvn install:install-file -Dfile=$(TROCKSDB_JAR) \
-		-DgroupId=test.org.trocksdb -DartifactId=rocksdbjni \
-		-Dversion=$(TROCKSDB_VERSION) -Dpackaging=jar
-	mvn install:install-file -Dfile=$(BDB_JAR) -DgroupId=test.org.bdb \
-		-DartifactId=bdb -Dversion=6.1.26 -Dpackaging=jar
+dist: check-hse
 	mvn install:install-file -Dfile=$(NFKVS_JAR) -DgroupId=test.org.nfkvs\
 		-DartifactId=nfkvs -Dversion=0.1 -Dpackaging=jar
-	mvn install:install-file -Dfile=$(WIREDTIGER_JAR) -DgroupId=test.org.wt\
-		-DartifactId=wt -Dversion=2.9.2 -Dpackaging=jar
 	mvn clean package
-
-rpm_ycsblibs:
-	rm -rf $(RPMSRCDIR)/ycsblibs
-	mkdir -p $(RPMSRCDIR)/ycsblibs
-	cp $(WIREDTIGER_JAVALIB) $(RPMSRCDIR)/ycsblibs
-	cp $(WIREDTIGER_SNAPPYLIB) $(RPMSRCDIR)/ycsblibs
-	cp $(WIREDTIGER_LIB) $(RPMSRCDIR)/ycsblibs
-	cd $(RPMSRCDIR) && tar czf ycsblibs.tar.gz ycsblibs
-	rm -rf $(RPMSRCDIR)/ycsblibs
 
 help:
 	@echo
@@ -173,11 +106,7 @@ publish:
 	$(BR_PREFIX)/build-rpms --rpmdir $(TOPDIR) --basename $(PROJECT)\
 		--publish --releasever $(RELEASEVER)
 
-#
-# NOTE: need to set QA_RPATHS to deal with invalid rpaths in
-# libwiredtiger_java.so
-#
-rpm: dist srcs rpm_ycsblibs
+rpm: dist srcs
 	cp hse-ycsb.spec $(RPMSRCDIR)
 	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \

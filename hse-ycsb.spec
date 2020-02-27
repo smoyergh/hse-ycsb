@@ -12,7 +12,6 @@ Requires: java-headless javapackages-tools
 Obsoletes: mse-ycsb
 
 Source0: ycsb-0.17.0.tar.gz
-Source1: ycsblibs.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: x86_64
@@ -37,12 +36,11 @@ AutoProv: no
 %endif
 
 %description
-YCSB with custom bindings for Native Flash Engine users
+YCSB with custom bindings for Heterogeneous-memory Storage Engine
 
 %prep
 %setup -c -T
 %{__tar} xf %{SOURCE0}
-%{__tar} xf %{SOURCE1}
 
 %build
 
@@ -55,14 +53,9 @@ mv -v ycsb-0.17.0/lib %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/mongodb-binding %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/nfkvs-binding %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/rocksdb-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.17.0/trocksdb-binding %{buildroot}%{__ycsb}
-mv -v ycsb-0.17.0/wiredtiger-binding %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/workloads %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/LICENSE.txt %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
-mv -v ycsblibs/libwiredtiger-2.9.2.so %{buildroot}%{_libdir}
-mv -v ycsblibs/libwiredtiger_java.so %{buildroot}%{_libdir}
-mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -81,15 +74,9 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 #%{__ycsb}/mapkeeper-binding
 %{__ycsb}/mongodb-binding
 %{__ycsb}/nfkvs-binding
-%{__ycsb}/rocksdb-binding
-%{__ycsb}/trocksdb-binding
-%{__ycsb}/wiredtiger-binding
 %{__ycsb}/workloads
 %{__ycsb}/LICENSE.txt
 %{__ycsb}/NOTICE.txt
-%{_libdir}/libwiredtiger-2.9.2.so
-%{_libdir}/libwiredtiger_java.so
-%{_libdir}/libwiredtiger_snappy.so
 %defattr(0755, root, root, 0755)
 %{__ycsb}/bin/ycsb
 %{__ycsb}/bin/ycsb.sh
