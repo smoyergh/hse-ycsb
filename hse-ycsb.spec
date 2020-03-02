@@ -1,6 +1,6 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.02.19
+Version: 2020.03.02
 Release: 1%{nfsha}%{ycsbsha}
 License: ASL 2.0
 Group: Unspecified
@@ -8,7 +8,7 @@ URL: https://www.micron.com
 
 Packager: NFSQA@micron.com
 Vendor: Micron Technology
-Requires: java-headless javapackages-tools python
+Requires: java-headless javapackages-tools
 Obsoletes: mse-ycsb
 
 Source0: ycsb-0.17.0.tar.gz
@@ -95,8 +95,8 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
-* Wed Feb 19 2020 Tom Blamer <tblamer@micron.com> - 2020.02.19
-- Revert long variable conversion
+* Mon Mar 02 2020 Tom Blamer <tblamer@micron.com> - 2020.03.02-1
+- Remove python from Requires
 
 * Tue Feb 11 2020 Tom Blamer <tblamer@micron.com> - 2020.02.11
 - Rebase on master (currenty 0.18.0-SNAPSHOT)
