@@ -1,7 +1,7 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
 Version: 2020.03.03
-Release: 1%{nfsha}%{ycsbsha}
+Release: 2%{nfsha}%{ycsbsha}
 License: ASL 2.0
 Group: Unspecified
 URL: https://www.micron.com
@@ -60,7 +60,7 @@ mv -v ycsb-0.17.0/wiredtiger-binding %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/workloads %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/LICENSE.txt %{buildroot}%{__ycsb}
 mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
-mv -v ycsblibs/libwiredtiger-2.9.1.so %{buildroot}%{_libdir}
+mv -v ycsblibs/libwiredtiger-2.9.2.so %{buildroot}%{_libdir}
 mv -v ycsblibs/libwiredtiger_java.so %{buildroot}%{_libdir}
 mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 
@@ -87,7 +87,7 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/workloads
 %{__ycsb}/LICENSE.txt
 %{__ycsb}/NOTICE.txt
-%{_libdir}/libwiredtiger-2.9.1.so
+%{_libdir}/libwiredtiger-2.9.2.so
 %{_libdir}/libwiredtiger_java.so
 %{_libdir}/libwiredtiger_snappy.so
 %defattr(0755, root, root, 0755)
@@ -95,6 +95,9 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
+* Tue Mar 03 2020 Tom Blamer <tblamer@micron.com> - 2020.03.03-2
+- Update wiredtiger to 2.9.2 (MongoDB 3.4.17.1)
+
 * Tue Mar 03 2020 Tom Blamer <tblamer@micron.com> - 2020.03.03-1
 - Update rocksdb version to 6.6.4
 

@@ -1,5 +1,5 @@
-<!-- LICENSE TODO
-Copyright (c) 2012 YCSB contributors. All rights reserved.
+<!--
+Copyright (c) 2012 - 2020 YCSB contributors. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License. You
@@ -17,34 +17,31 @@ LICENSE file.
 
 ## Quick Start
 
-This section describes how to run YCSB on NFKVS. 
+This section describes how to run YCSB on WiredTiger. 
 
 ### 1. Set Up YCSB
 
 Clone the YCSB git repository and compile:
 
-    git clone <YCSC Repo>
+    git clone <YCSB Repo>
     cd YCSB
     mvn clean package
 
 ### 2. Run YCSB
-    
+
 Now you are ready to run! First, load the data:
 
-    ./bin/ycsb load wiredtiger -s -P workloads/workloada -p wiredtiger.path=/tmp/wiredtiger
+    ./bin/ycsb load wiredtiger -s -P workloads/workloada -p wiredtiger.dir=/tmp/wiredtiger
 
 Then, run the workload:
 
-    ./bin/ycsb run wiredtiger -s -P workloads/workloada -p wiredtiger.path=/tmp/wiredtiger
+    ./bin/ycsb run wiredtiger -s -P workloads/workloada -p wiredtiger.dir=/tmp/wiredtiger
 
 See the next section for the list of configuration parameters for WiredTiger.
 
 ## WiredTiger Configuration Parameters
 
-- `wiredtiger.configstring`
-  - The entire configuration string to be passed to `wiredtiger_open`.  See http://source.wiredtiger.com/2.9.1/classcom_1_1wiredtiger_1_1db_1_1wiredtiger.html#a41881fa91c0b8820ad8a9f5bb91950f8 for details.
-  - Default value is hard coded in the binding, subject to change in future YCSB builds.
-- `wiredtiger.path` (**required**)
-  - The database path.
-  - No default.
-
+* ```wiredtiger.dir``` - (required) A path to a folder to hold the WiredTiger data files.
+    * EX. ```/tmp/ycsb-wiredtiger-data```
+* ```wiredtiger.configstring``` - The entire configuration string to be passed to `wiredtiger_open`.  See http://source.wiredtiger.com/2.9.2/classcom_1_1wiredtiger_1_1db_1_1wiredtiger.html for details.
+    * A default config string is hard coded in the binding, which is subject to change in future YCSB builds.
