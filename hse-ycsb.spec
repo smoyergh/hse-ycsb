@@ -1,6 +1,6 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.03.02
+Version: 2020.03.03
 Release: 1%{nfsha}%{ycsbsha}
 License: ASL 2.0
 Group: Unspecified
@@ -95,6 +95,9 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
+* Tue Mar 03 2020 Tom Blamer <tblamer@micron.com> - 2020.03.03-1
+- Update rocksdb version to 6.6.4
+
 * Mon Mar 02 2020 Tom Blamer <tblamer@micron.com> - 2020.03.02-1
 - Remove python from Requires
 
