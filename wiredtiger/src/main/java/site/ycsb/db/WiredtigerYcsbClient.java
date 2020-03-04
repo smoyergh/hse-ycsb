@@ -17,7 +17,6 @@ import site.ycsb.ByteArrayByteIterator;
 import site.ycsb.ByteIterator;
 import site.ycsb.DB;
 import site.ycsb.Status;
-import site.ycsb.workloads.CoreWorkload;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -26,29 +25,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class WiredtigerYcsbClient extends DB {
 
-  private static int valBufSize = 4096; // default
-
   private static Connection wtConn = null;
 
   private Session wtSession = null;
   private Cursor wtCursor = null;
 
-  private static final Object SZ_LOCK = new Object();
-  private static boolean gotSize = false;
-  private static long keySize = -1;
-  private static long valSize = -1;
-
   private static final AtomicInteger INIT_COUNT = new AtomicInteger(0);
-
-  private void getSizes(byte[] key, byte[] val) {
-    if (!gotSize) {
-      synchronized (SZ_LOCK) {
-        keySize = key.length;
-        valSize = val.length;
-        gotSize = true;
-      }
-    }
-  }
 
   /**
    * Initialize any state for this DB. Called once per DB instance; there is one
@@ -62,31 +44,14 @@ public class WiredtigerYcsbClient extends DB {
       Properties props = getProperties();
 
       try {
-        String dbPath = props.getProperty("wiredtiger.path");
-        if (null == dbPath) {
-          dbPath = props.getProperty("wiredtiger_path");
+        String dbPath = props.getProperty("wiredtiger.dir");
 
-          if (null == dbPath) {
-            System.out.println("Error: wiredtiger path not configured");
-            System.exit(1);
-          }
+        if (null == dbPath) {
+          System.out.println("Error: wiredtiger.dir not configured");
+          System.exit(1);
         }
 
         if (wtConn == null) {
-          String fieldCount = props.getProperty(
-              CoreWorkload.FIELD_COUNT_PROPERTY,
-              CoreWorkload.FIELD_COUNT_PROPERTY_DEFAULT
-          );
-
-          String fieldLength = props.getProperty(
-              CoreWorkload.FIELD_LENGTH_PROPERTY,
-              CoreWorkload.FIELD_LENGTH_PROPERTY_DEFAULT
-          );
-
-          int readFieldCount = Integer.parseInt(fieldCount);
-          valBufSize =  readFieldCount * (Integer.parseInt(fieldLength) + 20);
-          System.out.println("INFO: valBufSize = " + valBufSize);
-
           File dbDir = new File(dbPath);
 
           if (!dbDir.isDirectory()) {
@@ -112,6 +77,7 @@ public class WiredtigerYcsbClient extends DB {
               ",statistics_log=(wait=60)";
 
           String configStr = props.getProperty("wiredtiger.configstring");
+
           if (null == configStr) {
             configStr = defaultConfigStr;
           }
@@ -156,9 +122,6 @@ public class WiredtigerYcsbClient extends DB {
         } catch (WiredTigerException wte) {
           System.err.println("WiredTigerException: " + wte);
         }
-
-        // Output the key and Val sizes
-        System.out.println("[INFO], KEYSIZE=" + keySize + ", VALUESIZE=" + valSize);
       }
     }
   }
@@ -242,7 +205,6 @@ public class WiredtigerYcsbClient extends DB {
       wtCursor.putKeyByteArray(keyB);
       wtCursor.putValueByteArray(valB);
       wtCursor.insert();
-      getSizes(keyB, valB);
     } catch (Exception e) {
       e.printStackTrace();
       status = Status.ERROR;
@@ -260,7 +222,6 @@ public class WiredtigerYcsbClient extends DB {
       wtCursor.putKeyByteArray(keyB);
       wtCursor.putValueByteArray(valB);
       wtCursor.insert();
-      getSizes(keyB, valB);
     } catch (Exception e) {
       e.printStackTrace();
       status = Status.ERROR;

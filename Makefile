@@ -82,13 +82,23 @@ ROCKSDB_JAR:="target/rocksdb/java/target/rocksdbjni-$(ROCKSDB_VERSION)-linux64.j
 TROCKSDB_VERSION:="6.1.2"
 TROCKSDB_JAR:="target/trocksdb/java/target/rocksdbjni-$(TROCKSDB_VERSION)-linux64.jar"
 
-# git clone -b r3.4.2 /shared/git/mirrors/mongo.git
-# cd mongo/src/third_party/wiredtiger
-# ./autogen.sh && ./configure --enable-java && make -j
-WIREDTIGER_JAR="$(TOOLSDIR)/wiredtiger/mongodb-3.4.2/wiredtiger.jar"
-WIREDTIGER_JAVALIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.2/libwiredtiger_java.so"
-WIREDTIGER_SNAPPYLIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.2/libwiredtiger_snappy.so"
-WIREDTIGER_LIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.2/libwiredtiger-2.9.1.so"
+#
+# BUILDING WIREDTIGER
+#
+# The following commands build WiredTiger with the latest GCC toolchain on RHEL 7.
+# The artifacts should work on any RHEL 7 release or newer distro.
+#
+# cd $HOME/repos/hse-mongo/src/third_party/wiredtiger
+# scl enable devtoolset-9 "rm -f build_posix/aclocal/libtool.m4 build_posix/aclocal/lt*.m4 && ./autogen.sh && ./configure --enable-java --enable-snappy && make -j$(nproc)"
+#
+# mkdir /shared/tools/wiredtiger/mongodb-$MONGOVERSION
+# cp wiredtiger.jar .libs/libwiredtiger-2.9.2.so ./lang/java/.libs/libwiredtiger_java.so ./ext/compressors/snappy/.libs/libwiredtiger_snappy.so /shared/tools/wiredtiger/mongodb-$MONGOVERSION
+#
+
+WIREDTIGER_JAR="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/wiredtiger.jar"
+WIREDTIGER_JAVALIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger_java.so"
+WIREDTIGER_SNAPPYLIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger_snappy.so"
+WIREDTIGER_LIB="$(TOOLSDIR)/wiredtiger/mongodb-3.4.17.1/libwiredtiger-2.9.2.so"
 
 NFVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
 NFRELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
@@ -143,7 +153,7 @@ dist: check-hse trocksdbjar
 	mvn install:install-file -Dfile=$(NFKVS_JAR) -DgroupId=test.org.nfkvs\
 		-DartifactId=nfkvs -Dversion=0.1 -Dpackaging=jar
 	mvn install:install-file -Dfile=$(WIREDTIGER_JAR) -DgroupId=test.org.wt\
-		-DartifactId=wt -Dversion=2.9.1 -Dpackaging=jar
+		-DartifactId=wt -Dversion=2.9.2 -Dpackaging=jar
 	mvn clean package
 
 rpm_ycsblibs:
