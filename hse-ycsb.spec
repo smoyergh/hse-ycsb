@@ -1,7 +1,7 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.03.03
-Release: 2%{nfsha}%{ycsbsha}
+Version: 2020.03.05
+Release: 1%{nfsha}%{ycsbsha}
 License: ASL 2.0
 Group: Unspecified
 URL: https://www.micron.com
@@ -95,6 +95,9 @@ mv -v ycsblibs/libwiredtiger_snappy.so %{buildroot}%{_libdir}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
+* Thu Mar 05 2020 Tom Blamer <tblamer@micron.com> - 2020.03.05-1
+- Add rocksdb.wal_dir property
+
 * Tue Mar 03 2020 Tom Blamer <tblamer@micron.com> - 2020.03.03-2
 - Update wiredtiger to 2.9.2 (MongoDB 3.4.17.1)
 
