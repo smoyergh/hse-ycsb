@@ -30,9 +30,20 @@ import site.ycsb.Utils;
  * @ZipfianGenerator, if you don't want the head of the distribution (the popular items) clustered together.
  */
 public class ScrambledZipfianGenerator extends NumberGenerator {
-  public static final double ZETAN = 26.46902820178302;
+  /*
+   * ZETAN must be recalculated when ITEM_COUNT is changed.
+   *
+   * You can do this by editing the constructor ScrambledZipfianGenerator(long, long, double)
+   * in this file to not pass ZETAN to the underlying ZipfianGenerator constructor.  Then edit
+   * the ZifpianGenerator constructor to print the value of zetan after it has been recalculated.
+   *
+   * For ITEM_COUNT=40000000000L, the zetan calculation took about 48 minutes on a physical host.
+   * Expect it to take longer for larger values of ITEM_COUNT.
+   */
+  public static final double ZETAN = 28.226422586880297;    // Calculated for ITEM_COUNT=40000000000L
   public static final double USED_ZIPFIAN_CONSTANT = 0.99;
-  public static final long ITEM_COUNT = 1000000000000L;
+  public static final long ITEM_COUNT = 40000000000L;
+
 
   private ZipfianGenerator gen;
   private final long min, max, itemcount;
