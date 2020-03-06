@@ -44,11 +44,13 @@ public class RocksDBClient extends DB {
 
   static final String PROPERTY_ROCKSDB_DIR = "rocksdb.dir";
   static final String PROPERTY_ROCKSDB_OPTIONS_FILE = "rocksdb.optionsfile";
+  static final String PROPERTY_ROCKSDB_WAL_DIR = "rocksdb.wal_dir";
   private static final String COLUMN_FAMILY_NAMES_FILENAME = "CF_NAMES";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RocksDBClient.class);
 
   @GuardedBy("RocksDBClient.class") private static Path rocksDbDir = null;
+  @GuardedBy("RocksDBClient.class") private static Path rocksDbWalDir = null;
   @GuardedBy("RocksDBClient.class") private static Path optionsFile = null;
   @GuardedBy("RocksDBClient.class") private static RocksObject dbOptions = null;
   @GuardedBy("RocksDBClient.class") private static RocksDB rocksDb = null;
@@ -63,6 +65,12 @@ public class RocksDBClient extends DB {
       if(rocksDb == null) {
         rocksDbDir = Paths.get(getProperties().getProperty(PROPERTY_ROCKSDB_DIR));
         LOGGER.info("RocksDB data dir: " + rocksDbDir);
+
+        String rocksDbWalDirString = getProperties().getProperty(PROPERTY_ROCKSDB_WAL_DIR);
+        if (rocksDbWalDirString != null) {
+          rocksDbWalDir = Paths.get(rocksDbWalDirString);
+          LOGGER.info("RocksDB WAL dir: " + rocksDbWalDir);
+        }
 
         String optionsFileString = getProperties().getProperty(PROPERTY_ROCKSDB_OPTIONS_FILE);
         if (optionsFileString != null) {
@@ -103,6 +111,7 @@ public class RocksDBClient extends DB {
 
     RocksDB.loadLibrary();
     OptionsUtil.loadOptionsFromFile(optionsFile.toAbsolutePath().toString(), Env.getDefault(), options, cfDescriptors);
+    createAndSetWalDir(options);
     dbOptions = options;
 
     final RocksDB db = RocksDB.open(options, rocksDbDir.toAbsolutePath().toString(), cfDescriptors, cfHandles);
@@ -155,7 +164,9 @@ public class RocksDBClient extends DB {
           .setIncreaseParallelism(rocksThreads)
           .setMaxBackgroundCompactions(rocksThreads)
           .setInfoLogLevel(InfoLogLevel.INFO_LEVEL);
+      createAndSetWalDir(options);
       dbOptions = options;
+
       return RocksDB.open(options, rocksDbDir.toAbsolutePath().toString());
     } else {
       final DBOptions options = new DBOptions()
@@ -164,6 +175,7 @@ public class RocksDBClient extends DB {
           .setIncreaseParallelism(rocksThreads)
           .setMaxBackgroundCompactions(rocksThreads)
           .setInfoLogLevel(InfoLogLevel.INFO_LEVEL);
+      createAndSetWalDir(options);
       dbOptions = options;
 
       final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
@@ -444,6 +456,26 @@ public class RocksDBClient extends DB {
       }
     } finally {
       l.unlock();
+    }
+  }
+
+  private void createWalDir() throws IOException {
+    if (!Files.exists(rocksDbWalDir)) {
+      Files.createDirectories(rocksDbWalDir);
+    }
+  }
+
+  private void createAndSetWalDir(DBOptions options) throws IOException {
+    if (rocksDbWalDir != null) {
+      createWalDir();
+      options.setWalDir(rocksDbWalDir.toAbsolutePath().toString());
+    }
+  }
+
+  private void createAndSetWalDir(Options options) throws IOException {
+    if (rocksDbWalDir != null) {
+      createWalDir();
+      options.setWalDir(rocksDbWalDir.toAbsolutePath().toString());
     }
   }
 
