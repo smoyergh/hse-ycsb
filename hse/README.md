@@ -40,18 +40,13 @@ Then, run the workload:
 
     ./bin/ycsb run hse -s -P workloads/workloada -p hse.kvs_path=mp1/kvs1
 
-See the next section for the list of configuration parameters for NFKVS.
+See the next section for the list of configuration parameters for HSE KVS.
 
-## NFKVS Configuration Parameters
-
+## HSE Configuration Parameters
+Only hse.kvs_path is mandatory.
+    
 1. `hse.kvs_path`: The full path of the KVS storing the YCSB data, e.g. `mp1/kvs1`
-2. `hse.kvdb_rparams`: KVDB rparams in `key=value` format, separated by commas (,).
-3. `hse.kvs_rparams`: KVS rparams in `key=value` format, separated by commas (,).
-4. `hse.pfxlen`: Prefix length to be used in cursor scans.
+2. `hse.params`: HSE params in `key=value` format, separated by commas (,).
+3. `hse.pfxlen`: Prefix length to be used in cursor scans.
+4. `hse.config_path`: Path to an HSE config.
 
-Some older property names are supported for compatibility with scripts:
-- `hse_mpool_name`
-- `hse_kvs_name` (<kvdbname>/<kvsname> format)
-- `hse_pfxlen`
-- `kvdb_params`
-- `kvs_params`

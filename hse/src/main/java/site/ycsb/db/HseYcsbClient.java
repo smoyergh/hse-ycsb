@@ -90,57 +90,24 @@ public class HseYcsbClient extends DB {
     return props.getProperty("hse.kvs_path");
   }
 
-  private String getMpoolNameParam(Properties props) {
-    String mpoolName = props.getProperty("hse.mpool_name");
-    if (mpoolName == null)   {
-      mpoolName = props.getProperty("hse_mpool_name");
+  private String getHseParamsParam(Properties props) {
+    String hseParams = props.getProperty("hse.params");
+
+    if (hseParams != null) {
+      hseParams = hseParams.replace(';', ',');
     }
 
-    return mpoolName;
-  }
-
-  private String getKvsNameParam(Properties props) {
-    String kvsName = props.getProperty("hse.kvs_name");
-    if (kvsName == null)   {
-      kvsName = props.getProperty("hse_kvs_name");
-    }
-
-    return kvsName;
-  }
-
-  private String getKvdbRParamsParam(Properties props) {
-    String kvdbParams = props.getProperty("hse.kvdb_rparams");
-    if (kvdbParams == null)   {
-      kvdbParams = props.getProperty("kvdb_params");
-    }
-
-    if (kvdbParams != null) {
-      kvdbParams = kvdbParams.replace(';', ',');
-    }
-
-    return kvdbParams;
-  }
-
-  private String getKvsRParamsParam(Properties props) {
-    String kvsParams = props.getProperty("hse.kvs_rparams");
-    if (kvsParams == null)   {
-      kvsParams = props.getProperty("kvs_params");
-    }
-
-    if (kvsParams != null) {
-      kvsParams = kvsParams.replace(';', ',');
-    }
-
-    return kvsParams;
+    return hseParams;
   }
 
   private String getPfxlenParam(Properties props) {
     String pfxlen = props.getProperty("hse.pfxlen");
-    if (pfxlen == null)   {
-      pfxlen = props.getProperty("hse_pfxlen");
-    }
-
     return pfxlen;
+  }
+  
+  private String getConfigPathParam(Properties props) {
+    String configPath = props.getProperty("hse.config_path");
+    return configPath;
   }
 
   /**
@@ -150,8 +117,8 @@ public class HseYcsbClient extends DB {
   @Override
   public void init() {
     INIT_COUNT.incrementAndGet();
-
     synchronized (INIT_COUNT) {
+
       if (hseAPI == null) {
         hseAPI = new API();
         API.loadLibrary();
@@ -170,34 +137,28 @@ public class HseYcsbClient extends DB {
             LOGGER.error("invalid kvs path [" + kvsPath + "]");
             System.exit(1);
           }
-
           mpoolName = names[0];
-          kvsName = names[0] + "/" + names[1];
-        } else {
-          mpoolName = getMpoolNameParam(props);
-          kvsName = getKvsNameParam(props);
-        }
+          kvsName = kvsPath;
 
-        if (null == mpoolName || null == kvsName) {
+        } else {
           LOGGER.error("hse.kvs_path not configured");
           System.exit(1);
         }
 
-        String kvdbParams = getKvdbRParamsParam(props);
-        if (null == kvdbParams) {
-          LOGGER.info("property hse.kvdb_rparams not specified, using default configuration");
-          kvdbParams = "";
-        }
-
-        String kvsParams = getKvsRParamsParam(props);
-        if (null == kvsParams) {
-          LOGGER.info("property hse.kvs_rparams not specified, using default configuration");
-          kvsParams = "";
+        String hseParams = getHseParamsParam(props);
+        if (null == hseParams) {
+          LOGGER.info("property hse.params not specified, using default configuration");
+          hseParams = "";
         }
 
         String pfxlen = getPfxlenParam(props);
         if (pfxlen != null) {
           kvsPfxLen = Integer.parseInt(pfxlen);
+        }
+        
+        String configPath = getConfigPathParam(props);
+        if (null == configPath) {
+          configPath = "";
         }
 
         if (kvsPfxLen > 0) {
@@ -213,10 +174,10 @@ public class HseYcsbClient extends DB {
             CoreWorkload.SCAN_PROPORTION_PROPERTY_DEFAULT));
         if (scanProportion > 0) {
           /* Parameter for workloads with scans, like workload E. */
-          if (!kvdbParams.isEmpty() && !kvdbParams.endsWith(",")) {
-            kvdbParams += ",";
+          if (!hseParams.isEmpty() && !hseParams.endsWith(",")) {
+            hseParams += ",";
           }
-          kvdbParams += "csched_scatter_pct=1";
+          hseParams += "kvdb.csched_scatter_pct=1";
         }
 
         String fieldCount = props.getProperty(
@@ -232,13 +193,11 @@ public class HseYcsbClient extends DB {
         int readFieldCount = Integer.parseInt(fieldCount);
         valBufSize = readFieldCount * (Integer.parseInt(fieldLength) + 20);
 
-        LOGGER.info("kvdb_rparams=\"" + kvdbParams + "\"");
-        LOGGER.info("kvs_rparams=\"" + kvsParams + "\"");
-
+        LOGGER.info("hse.params=\"" + hseParams + "\"");
+        
         try {
           hseAPI.init(valBufSize);
-          hseAPI.open((short) 1, mpoolName, kvsName, kvdbParams, kvsParams,
-                     10, "cfgArgv");
+          hseAPI.open((short) 1, mpoolName, kvsName, hseParams, configPath);
         } catch (HSEGenException e) {
           e.printStackTrace();
           LOGGER.error("Could not open HSE with mpool name [" + mpoolName + "] and kvs name ["
