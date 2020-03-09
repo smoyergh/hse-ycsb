@@ -16,7 +16,6 @@ Primary Targets:
     cleansrcs       -- clean out rpmbuild/SOURCES
     dist            -- build YCSB distribution tarball
     help            -- print this message
-    publish         -- publish to SBU repo
     rpm             -- build RPM
     srcs            -- prepare rpmbuild/SOURCES
 
@@ -64,8 +63,7 @@ TOOLSDIR:=/shared/tools
 #
 PROJECT:=hse-ycsb
 BR_PREFIX:=/usr/bin
-
-include /usr/share/mse/mse-rpm.mk
+RELEASEVER:=$(shell rpm --eval "%{dist}" | sed -e 's/^\.//' -e 's/^[a-z]*//') 
 
 #
 # variables for prebuilt jars/binaries
@@ -80,7 +78,7 @@ HSESHA:=.$(word 3,$(subst ., ,$(shell rpm -q hse --qf "%{RELEASE}")))
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
-.PHONY: all check-hse cleansrcs dist help publish srcs rpm
+.PHONY: all check-hse cleansrcs dist help srcs rpm
 all:	rpm
 
 check-hse:
@@ -107,10 +105,6 @@ dist: check-hse
 help:
 	@echo
 	$(info $(HELP_TEXT))
-
-publish:
-	$(BR_PREFIX)/build-rpms --rpmdir $(TOPDIR) --basename $(PROJECT)\
-		--publish --releasever $(RELEASEVER)
 
 rpm: dist srcs
 	cp hse-ycsb.spec $(RPMSRCDIR)
