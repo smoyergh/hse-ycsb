@@ -79,6 +79,7 @@ mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
 #%{__ycsb}/mapkeeper-binding
 %{__ycsb}/mongodb-binding
 %{__ycsb}/hse-binding
+%{__ycsb}/rocksdb-binding
 %{__ycsb}/workloads
 %{__ycsb}/LICENSE.txt
 %{__ycsb}/NOTICE.txt
