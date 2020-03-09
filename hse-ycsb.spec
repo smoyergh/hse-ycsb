@@ -1,8 +1,14 @@
+#
+#    SPDX-License-Identifier: Apache-2.0
+#
+#    Copyright (C) 2015-2020 Micron Technology, Inc.
+#
+
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
 Version: 2020.03.05
 Release: 1%{hsesha}%{ycsbsha}
-License: ASL 2.0
+License: Apache-2.0
 Group: Unspecified
 URL: https://www.micron.com
 

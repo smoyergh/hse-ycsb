@@ -1,3 +1,11 @@
+/**
+ *    SPDX-License-Identifier: Apache-2.0
+ *
+ *    Copyright (C) 2015-2020 Micron Technology, Inc.
+ *
+ *    Some parts of the code herein is derived from the ycsb rocksdb binding.
+ */
+
 package site.ycsb.db;
 
 import java.io.ByteArrayOutputStream;
