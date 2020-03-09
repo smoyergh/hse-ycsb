@@ -1,3 +1,9 @@
+#
+#    SPDX-License-Identifier: Apache-2.0
+#
+#    Copyright (C) 2015-2020 Micron Technology, Inc.
+#
+
 define HELP_TEXT
 
 Makefile Help
