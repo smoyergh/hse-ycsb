@@ -14,7 +14,7 @@ URL: https://www.micron.com
 
 Packager: NFSQA@micron.com
 Vendor: Micron Technology, Inc.
-Requires: java-headless javapackages-tools python
+Requires: java-headless javapackages-tools python2
 
 Source0: ycsb-0.17.0.tar.gz
 
