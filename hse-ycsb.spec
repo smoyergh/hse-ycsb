@@ -6,7 +6,7 @@
 
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.03.05
+Version: 2020.03.18
 Release: 1%{hsesha}%{ycsbsha}
 License: Apache-2.0
 Group: Unspecified
@@ -14,7 +14,7 @@ URL: https://www.micron.com
 
 Packager: NFSQA@micron.com
 Vendor: Micron Technology, Inc.
-Requires: java-headless javapackages-tools python
+Requires: java-headless javapackages-tools python2
 
 Source0: ycsb-0.17.0.tar.gz
 
