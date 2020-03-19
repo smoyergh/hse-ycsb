@@ -5,8 +5,8 @@
 #
 
 Summary: Yahoo! Cloud Serving Benchmark
-Name: hse-ycsb
-Version: 0.LargeRecordCount.2020.03.05
+Name: hse-ycsb-LargeRecordCount
+Version: 2020.03.18
 Release: 1%{hsesha}%{ycsbsha}
 License: Apache-2.0
 Group: Unspecified
@@ -30,7 +30,7 @@ AutoProv: no
 %define __os_install_post %{nil}
 
 %define __mypkg %{name}-%{version}-%{release}
-%define __ycsb /opt/micron/ycsb
+%define __ycsb /opt/micron/ycsb-LargeRecordCount
 
 %if 0%{?fedora} >= 28 || 0%{?rhel} >= 8
 # don't try to generate debuginfo RPM

@@ -29,8 +29,8 @@ Configuration Variables:
                        of in /tmp/<username>
 
 Products:
-  hse-ycsb RPM in rpmbuild/RPMS/noarch.
-  hse-ycsb RPM in rpmbuild/SRPMS.
+  hse-ycsb-LargeRecordCount RPM in rpmbuild/RPMS/noarch.
+  hse-ycsb-LargeRecordCount RPM in rpmbuild/SRPMS.
 
   RPMs currently use the following format for their release string:
 
@@ -61,7 +61,7 @@ TOOLSDIR:=/shared/tools
 #
 # variables for build-rpms
 #
-PROJECT:=hse-ycsb
+PROJECT:=hse-ycsb-LargeRecordCount
 BR_PREFIX:=/usr/bin
 RELEASEVER:=$(shell rpm --eval "%{dist}" | sed -e 's/^\.//' -e 's/^[a-z]*//') 
 
@@ -107,7 +107,7 @@ help:
 	$(info $(HELP_TEXT))
 
 rpm: dist srcs
-	cp hse-ycsb.spec $(RPMSRCDIR)
+	cp hse-ycsb-LargeRecordCount.spec $(RPMSRCDIR)
 	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
@@ -115,7 +115,7 @@ rpm: dist srcs
 		--define="hsesha $(HSESHA)" \
 		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
-		$(RPMSRCDIR)/hse-ycsb.spec
+		$(RPMSRCDIR)/hse-ycsb-LargeRecordCount.spec
 
 srcs: cleansrcs
 	mkdir -p $(TOPDIR)/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
