@@ -6,7 +6,7 @@
 
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.03.05
+Version: 2020.03.18
 Release: 1%{hsesha}%{ycsbsha}
 License: Apache-2.0
 Group: Unspecified
