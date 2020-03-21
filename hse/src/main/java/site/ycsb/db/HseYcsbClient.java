@@ -42,23 +42,27 @@ public class HseYcsbClient extends DB {
 
   private static final AtomicInteger INIT_COUNT = new AtomicInteger(0);
   private static String defYCSBPfx = "user";
-  private static int kvsPfxLen = 0;
+  private static int defKvsPfxLen = 7;
+  private static int defCursorPfxLen = 7;
+    
+  
+  private static int cursorPfxLen = defCursorPfxLen;
 
-  private static String getKvsPfx(String key) {
-    if (kvsPfxLen == 0 || key == null) {
+  private static String getCursorPfx(String key) {
+    if (cursorPfxLen == 0 || key == null) {
       return null;
     }
 
     /* Use non-prefixed cursor if key length is smaller/same as pfx. length. */
-    if (key.length() <= kvsPfxLen) {
+    if (key.length() <= cursorPfxLen) {
       return null;
     }
 
-    return key.substring(0, kvsPfxLen);
+    return key.substring(0, cursorPfxLen);
   }
 
   private static String getNextPfx(String curPfx) {
-    if (kvsPfxLen == 0 || curPfx == null) {
+    if (cursorPfxLen == 0 || curPfx == null) {
       return null;
     }
 
@@ -71,8 +75,8 @@ public class HseYcsbClient extends DB {
     int ycsbPfxLen = defYCSBPfx.length();
     int curPfxLen = curPfx.length();
 
-    /* Ensured by earlier checks in init() and getKvsPfx(). */
-    assert(curPfxLen > ycsbPfxLen && curPfxLen == kvsPfxLen);
+    /* Ensured by earlier checks in init() and getCursorPfx(). */
+    assert(curPfxLen > ycsbPfxLen && curPfxLen == cursorPfxLen);
 
     // Below logic is tightly coupled with the YCSB key format: "user[0-9]+"
     Long nextPfx = new Long(0);
@@ -94,8 +98,8 @@ public class HseYcsbClient extends DB {
     return defYCSBPfx + Long.toString(nextPfx);
   }
 
-  private String getKvsPathParam(Properties props) {
-    return props.getProperty("hse.kvs_path");
+  private String getMpoolNameParam(Properties props) {
+    return props.getProperty("hse.mpool_name");
   }
 
   private String getHseParamsParam(Properties props) {
@@ -108,8 +112,8 @@ public class HseYcsbClient extends DB {
     return hseParams;
   }
 
-  private String getPfxlenParam(Properties props) {
-    String pfxlen = props.getProperty("hse.pfxlen");
+  private String getCursorPfxLenParam(Properties props) {
+    String pfxlen = props.getProperty("hse.cursor_pfx_len");
     return pfxlen;
   }
   
@@ -133,35 +137,40 @@ public class HseYcsbClient extends DB {
 
         Properties props = getProperties();
 
-        String mpoolName = null;
-        String kvsName = null;    // actually "<kvdb>/<kvs>"
-
-        String kvsPath = getKvsPathParam(props);
-
-        if (null != kvsPath) {
-          String[] names = kvsPath.split("/");
-          if (names.length != 2 ||
-              names[0].length() < 1 || names[1].length() < 1) {
-            LOGGER.error("invalid kvs path [" + kvsPath + "]");
-            System.exit(1);
-          }
-          mpoolName = names[0];
-          kvsName = kvsPath;
-
-        } else {
-          LOGGER.error("hse.kvs_path not configured");
+        String mpoolName = getMpoolNameParam(props);
+        if(null == mpoolName) {
+          LOGGER.error("hse.mpool_name not configured");
           System.exit(1);
         }
+
+        String kvsName = props.getProperty(
+            CoreWorkload.TABLENAME_PROPERTY,
+            CoreWorkload.TABLENAME_PROPERTY_DEFAULT);
+        if(null == kvsName) {
+          LOGGER.error(CoreWorkload.TABLENAME_PROPERTY + " not configured");
+          System.exit(1);
+        }
+
+        String kvsPath = mpoolName + "/" + kvsName;
 
         String hseParams = getHseParamsParam(props);
         if (null == hseParams) {
           LOGGER.info("property hse.params not specified, using default configuration");
           hseParams = "";
+        } else {
+          hseParams = hseParams.trim();
         }
 
-        String pfxlen = getPfxlenParam(props);
+        // append kvs.pfx_len if not present
+        if (hseParams.isEmpty()) {
+          hseParams = "kvs.pfx_len=" + defKvsPfxLen;
+        } else if (!hseParams.contains("kvs.pfx_len=")){
+          hseParams += ",kvs.pfx_len=" + defKvsPfxLen;
+        }
+
+        String pfxlen = getCursorPfxLenParam(props);
         if (pfxlen != null) {
-          kvsPfxLen = Integer.parseInt(pfxlen);
+          cursorPfxLen = Integer.parseInt(pfxlen);
         }
         
         String configPath = getConfigPathParam(props);
@@ -169,9 +178,9 @@ public class HseYcsbClient extends DB {
           configPath = "";
         }
 
-        if (kvsPfxLen > 0) {
-          if (kvsPfxLen <= defYCSBPfx.length()) {
-            LOGGER.error("KVS Prefix length must be greater than the length " +
+        if (cursorPfxLen > 0) {
+          if (cursorPfxLen <= defYCSBPfx.length()) {
+            LOGGER.error("Cursor Prefix length must be greater than the length " +
                          "of the default YCSB prefix, " + defYCSBPfx);
             System.exit(1);
           }
@@ -205,11 +214,11 @@ public class HseYcsbClient extends DB {
         
         try {
           hseAPI.init(valBufSize);
-          hseAPI.open((short) 1, mpoolName, kvsName, hseParams, configPath);
+          hseAPI.open((short) 1, mpoolName, kvsPath, hseParams, configPath);
         } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.error("Could not open HSE with mpool name [" + mpoolName + "] and kvs name ["
-              + kvsName + "]");
+          LOGGER.error("Could not open HSE with kvs path ["
+              + kvsPath + "]");
           System.exit(1);
         }
       }
@@ -258,7 +267,7 @@ public class HseYcsbClient extends DB {
 
     // [MU_REVISIT]: Maybe cleaner to separate prefixed and non-prefixed paths.
     try {
-      curPfx = getKvsPfx(startkey);
+      curPfx = getCursorPfx(startkey);
       curPfxLen = (curPfx != null) ? curPfx.length() : 0;
       hseAPI.createCursor(curPfx, curPfxLen);
     } catch (HSEGenException e) {
