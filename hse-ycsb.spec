@@ -32,7 +32,7 @@ AutoProv: no
 %define __mypkg %{name}-%{version}-%{release}
 %define __ycsb /opt/micron/ycsb
 
-%if 0%{?fedora} >= 28 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 25 || 0%{?rhel} >= 8
 # don't try to generate debuginfo RPM
 %global debug_package %{nil}
 
