@@ -184,7 +184,7 @@ This code is derived from the ycsb project.
     <module>hbase14</module>
     <module>hbase20</module>
     <module>hypertable</module>
-    <module>ignite</module>
+    <!--<module>ignite</module>--> <!-- FIXME -->
     <module>infinispan</module>
     <module>jdbc</module>
     <module>kudu</module>
