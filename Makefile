@@ -43,6 +43,9 @@ else
 	TOPDIR:="/tmp/$(shell id -u -n)/rpmbuild"
 endif
 
+JENKINS_BUILDNO?=0
+REL_CANDIDATE?=FALSE
+
 #
 # IMPORTANT NOTES FOR BUILD
 #
@@ -74,7 +77,7 @@ HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
 HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
 RELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
 # HSERELEASE:=$(shell rpm -q hse --qf "%{RELEASE}")
-HSESHA:=.$(word 3,$(subst ., ,$(shell rpm -q hse --qf "%{RELEASE}")))
+HSESHA:=.$(word 6,$(subst ., ,$(shell hse version)))
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
@@ -115,6 +118,8 @@ rpm: dist srcs
 		--define="hsesha $(HSESHA)" \
 		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
+		--define="rel_candidate $(REL_CANDIDATE)" \
+		--define="buildno $(JENKINS_BUILDNO)" \
 		$(RPMSRCDIR)/hse-ycsb.spec
 
 srcs: cleansrcs
