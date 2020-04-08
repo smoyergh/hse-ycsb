@@ -90,5 +90,5 @@ mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
-* Apr 08 2020 Jacob M Jacob <jjacob@micron.com> - 0.17.0.1
+* Wed Apr 08 2020 Jacob M Jacob <jjacob@micron.com> - 0.17.0.1
 - Spec file updates
