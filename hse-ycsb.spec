@@ -6,15 +6,17 @@
 
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
-Version: 2020.03.20
-Release: 1%{hsesha}%{ycsbsha}
-License: Apache-2.0
+Version: 0.17.0.1
+%if %{rel_candidate} == "FALSE"
+Release: %{hseversion}.%{buildno}%{hsesha}%{ycsbsha}%{?dist}
+%else
+Release: %{hseversion}.%{buildno}%{?dist}
+%endif
+License: ASL 2.0
 Group: Unspecified
-URL: https://www.micron.com
+Url: https://github.com/hse-project/hse-ycsb
 
-Packager: NFSQA@micron.com
-Vendor: Micron Technology, Inc.
-Requires: java-headless javapackages-tools python2
+Requires: java-headless javapackages-tools python2 hse
 
 Source0: ycsb-0.17.0.tar.gz
 
@@ -30,7 +32,7 @@ AutoProv: no
 %define __os_install_post %{nil}
 
 %define __mypkg %{name}-%{version}-%{release}
-%define __ycsb /opt/micron/ycsb
+%define __ycsb /opt/%{name}
 
 %if 0%{?fedora} >= 25 || 0%{?rhel} >= 8
 # don't try to generate debuginfo RPM
@@ -41,7 +43,7 @@ AutoProv: no
 %endif
 
 %description
-YCSB with custom bindings for Heterogeneous-memory Storage Engine
+YCSB with bindings for Heterogeneous-memory Storage Engine (HSE)
 
 %prep
 %setup -c -T
@@ -88,3 +90,5 @@ mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
 %{__ycsb}/bin/ycsb.sh
 
 %changelog
+* Apr 08 2020 Jacob M Jacob <jjacob@micron.com> - 0.17.0.1
+- Spec file updates
