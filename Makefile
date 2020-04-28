@@ -78,7 +78,13 @@ HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
 RELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
 # HSERELEASE:=$(shell rpm -q hse --qf "%{RELEASE}")
 HSESHA:=.$(word 6,$(subst ., ,$(shell hse version)))
+ifeq ($(HSESHA),.)
+    HSESHA:=".nogit"
+endif
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
+ifeq ($(YCSBSHA),.)
+    YCSBSHA:=".nogit"
+endif
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
 .PHONY: all check-hse cleansrcs dist help srcs rpm
