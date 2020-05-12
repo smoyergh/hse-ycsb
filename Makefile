@@ -108,7 +108,7 @@ cleanbuilds:
 
 dist: check-hse
 	mvn install:install-file -Dfile=$(HSE_JAR) -DgroupId=test.org.hse\
-		-DartifactId=hse -Dversion=0.1 -Dpackaging=jar
+		-DartifactId=hse -Dversion=2.0 -Dpackaging=jar
 	mvn clean package
 
 help:
