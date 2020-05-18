@@ -194,7 +194,7 @@ public class HseYcsbClient extends DB {
           if (!hseParams.isEmpty() && !hseParams.endsWith(",")) {
             hseParams += ",";
           }
-          hseParams += "kvdb.csched_vb_scatter_pct=1";
+          hseParams += "kvdb.csched_vb_scatter_pct=1,kvs.cn_cursor_vra=0";
         }
 
         String fieldCount = props.getProperty(
