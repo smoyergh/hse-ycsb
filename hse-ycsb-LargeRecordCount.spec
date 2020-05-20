@@ -6,7 +6,7 @@
 
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb-LargeRecordCount
-Version: 0.17.0.1
+Version: %{hseycsbversion}
 %if %{rel_candidate} == "FALSE"
 Release: %{hseversion}.%{buildno}%{hsesha}%{ycsbsha}%{?dist}
 %else

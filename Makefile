@@ -87,6 +87,9 @@ ifeq ($(YCSBSHA),.)
 endif
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
+HSE_YCSB_VER=$(shell cat hse/VERSION)
+HSE_BINDING_VER=$(shell cut -d . -f 4-  hse/VERSION)
+
 .PHONY: all check-hse cleansrcs dist help srcs rpm
 all:	rpm
 
@@ -107,8 +110,9 @@ cleanbuilds:
 	rm -rf $(TOPDIR)/{BUILD,RPMS,SRPMS}
 
 dist: check-hse
+	mvn versions:set-property -DnewVersion=$(HSE_BINDING_VER) -Dproperty=hse.version
 	mvn install:install-file -Dfile=$(HSE_JAR) -DgroupId=test.org.hse\
-		-DartifactId=hse -Dversion=0.1 -Dpackaging=jar
+		-DartifactId=hse -Dversion=$(HSE_BINDING_VER) -Dpackaging=jar
 	mvn clean package
 
 help:
@@ -126,6 +130,7 @@ rpm: dist srcs
 		--define="_topdir $(TOPDIR)" \
 		--define="rel_candidate $(REL_CANDIDATE)" \
 		--define="buildno $(JENKINS_BUILDNO)" \
+		--define="hseycsbversion $(HSE_YCSB_VER)" \
 		$(RPMSRCDIR)/hse-ycsb-LargeRecordCount.spec
 
 srcs: cleansrcs
