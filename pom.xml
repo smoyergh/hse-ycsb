@@ -148,7 +148,7 @@ This code is derived from the ycsb project.
     <tablestore.version>4.8.0</tablestore.version>
     <voltdb.version>9.1.1</voltdb.version>
 
-    <hse.version>0.1</hse.version>
+    <hse.version>0.0</hse.version>
   </properties>
 
   <modules>
