@@ -10,6 +10,7 @@ Version: %{hseycsbversion}
 Release: %{pkgrelease}%{?dist}
 License: ASL 2.0
 Group: Unspecified
+Vendor: Micron Technology, Inc.
 Url: https://github.com/hse-project/hse-ycsb
 
 Requires: java-headless javapackages-tools python2 hse
