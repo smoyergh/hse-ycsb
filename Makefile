@@ -39,8 +39,10 @@ endef
 
 ifdef NOTMP
 	TOPDIR:="$(HOME)/rpmbuild"
+	DEB_TOPDIR:="$(HOME)/debbuild"
 else
 	TOPDIR:="/tmp/$(shell id -u -n)/rpmbuild"
+	DEB_TOPDIR:="/tmp/$(shell id -u -n)/debbuild"
 endif
 
 JENKINS_BUILDNO?=0
@@ -62,33 +64,45 @@ RPMSRCDIR:=$(TOPDIR)/SOURCES
 TOOLSDIR:=/shared/tools
 
 #
-# variables for build-rpms
-#
-PROJECT:=hse-ycsb
-BR_PREFIX:=/usr/bin
-RELEASEVER:=$(shell rpm --eval "%{dist}" | sed -e 's/^\.//' -e 's/^[a-z]*//') 
-
-#
 # variables for prebuilt jars/binaries
 #
-
 HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
 
-HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
-RELTYPE:=$(shell rpm -q hse --qf "%{RELEASE}" | grep -o '^[[:alpha:]]*')
-# HSERELEASE:=$(shell rpm -q hse --qf "%{RELEASE}")
+RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
+
+ifeq ($(RPM_QUERY), 0)
+    HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
+else
+    HSEVERSION:=$(shell dpkg-query --showformat='${Version}\n' --show hse | cut -d'-' -1)
+endif
+
 HSESHA:=.$(word 6,$(subst ., ,$(shell hse version)))
 ifeq ($(HSESHA),.)
-    HSESHA:=".nogit"
+    HSESHA:=.nogit
 endif
 YCSBSHA:=.$(shell git rev-parse --short=7 HEAD)
 ifeq ($(YCSBSHA),.)
-    YCSBSHA:=".nogit"
+    YCSBSHA:=.nogit
 endif
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
 HSE_YCSB_VER=$(shell cat hse/VERSION)
 HSE_BINDING_VER=$(shell cut -d . -f 4-  hse/VERSION)
+
+ifeq ($(REL_CANDIDATE), FALSE)
+    RPM_RELEASE:=${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+else
+    RPM_RELEASE:=${JENKINS_BUILDNO}
+    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}
+endif
+
+#
+# variables for debian
+#
+DEB_PKGNAME:=hse-ycsb-$(DEB_VERSION)_amd64
+DEB_PKGDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)
+DEB_ROOTDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)/opt/hse-ycsb
 
 .PHONY: all check-hse cleansrcs dist help srcs rpm
 all:	rpm
@@ -99,7 +113,7 @@ check-hse:
 	#
 	@if [ ! -f /usr/share/hse/jni/hsejni.jar ]; \
 	then \
-	    echo "Missing hse RPM!  Cannot build!"; \
+	    echo "Missing hse package!  Cannot build!"; \
 	    exit 1; \
 	fi
 
@@ -121,17 +135,38 @@ help:
 
 rpm: dist srcs
 	cp hse-ycsb.spec $(RPMSRCDIR)
-	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)
+	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)/
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
 		--define="hseversion $(HSEVERSION)" \
 		--define="hsesha $(HSESHA)" \
 		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
-		--define="rel_candidate $(REL_CANDIDATE)" \
+		--define="pkgrelease $(RPM_RELEASE)" \
 		--define="buildno $(JENKINS_BUILDNO)" \
 		--define="hseycsbversion $(HSE_YCSB_VER)" \
 		$(RPMSRCDIR)/hse-ycsb.spec
+
+deb: dist
+	rm -rf $(DEB_TOPDIR)
+	mkdir -p $(DEB_TOPDIR)
+	mkdir -p $(DEB_PKGDIR)
+	mkdir -p $(DEB_ROOTDIR)
+	cp distribution/target/ycsb-0.17.0.tar.gz $(DEB_TOPDIR)
+	cd $(DEB_TOPDIR) && tar xf ycsb-0.17.0.tar.gz
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/bin $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/hse-binding $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/lib $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/mongodb-binding $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/rocksdb-binding $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/workloads $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/LICENSE.txt $(DEB_ROOTDIR)
+	cp -a $(DEB_TOPDIR)/ycsb-0.17.0/NOTICE.txt $(DEB_ROOTDIR)
+	mkdir $(DEB_PKGDIR)/DEBIAN
+	cp debian/control $(DEB_PKGDIR)/DEBIAN
+	sed -i 's/@VERSION@/$(DEB_VERSION)/' $(DEB_PKGDIR)/DEBIAN/control
+	cd $(DEB_TOPDIR) && dpkg-deb -b $(DEB_PKGNAME)
+
 
 srcs: cleansrcs
 	mkdir -p $(TOPDIR)/{BUILD,RPMS,SOURCES,SPECS,SRPMS}

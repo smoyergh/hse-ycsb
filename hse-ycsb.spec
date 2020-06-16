@@ -7,13 +7,10 @@
 Summary: Yahoo! Cloud Serving Benchmark
 Name: hse-ycsb
 Version: %{hseycsbversion}
-%if %{rel_candidate} == "FALSE"
-Release: %{hseversion}.%{buildno}%{hsesha}%{ycsbsha}%{?dist}
-%else
-Release: %{hseversion}.%{buildno}%{?dist}
-%endif
+Release: %{pkgrelease}%{?dist}
 License: ASL 2.0
 Group: Unspecified
+Vendor: Micron Technology, Inc.
 Url: https://github.com/hse-project/hse-ycsb
 
 Requires: java-headless javapackages-tools python2 hse
@@ -78,7 +75,6 @@ mv -v ycsb-0.17.0/NOTICE.txt %{buildroot}%{__ycsb}
 %{__ycsb}/bin/bindings.properties
 %{__ycsb}/bin/ycsb.bat
 %{__ycsb}/lib
-#%{__ycsb}/mapkeeper-binding
 %{__ycsb}/mongodb-binding
 %{__ycsb}/hse-binding
 %{__ycsb}/rocksdb-binding

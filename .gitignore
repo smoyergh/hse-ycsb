@@ -23,3 +23,10 @@ output*
 # ignore standard Mac OS X files/dirs
 .DS_Store
 /differentbin/
+
+# ignore test artifacts
+ignite-binding.log
+ignite-binding*log.gz
+
+# ignore generated packages
+*.deb
