@@ -45,6 +45,13 @@ else
 	DEB_TOPDIR:="/tmp/$(shell id -u -n)/debbuild"
 endif
 
+DISTRO_ID_LIKE := $(shell . /etc/os-release && echo $$ID_LIKE)
+ifeq ($(DISTRO_ID_LIKE),debian)
+	PACKAGE_TARGET = deb
+else
+	PACKAGE_TARGET = rpm
+endif
+
 JENKINS_BUILDNO?=0
 REL_CANDIDATE?=FALSE
 
@@ -104,7 +111,7 @@ DEB_PKGNAME:=hse-ycsb-$(DEB_VERSION)_amd64
 DEB_PKGDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)
 DEB_ROOTDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)/opt/hse-ycsb
 
-.PHONY: all check-hse cleansrcs dist help srcs rpm
+.PHONY: all check-hse cleansrcs dist help srcs rpm deb
 all:	rpm
 
 check-hse:
@@ -167,6 +174,7 @@ deb: dist
 	sed -i 's/@VERSION@/$(DEB_VERSION)/' $(DEB_PKGDIR)/DEBIAN/control
 	cd $(DEB_TOPDIR) && dpkg-deb -b $(DEB_PKGNAME)
 
+package: $(PACKAGE_TARGET)
 
 srcs: cleansrcs
 	mkdir -p $(TOPDIR)/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
