@@ -77,13 +77,7 @@ HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
 
 RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
 
-ifeq ($(RPM_QUERY), 0)
-    HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
-else
-    HSEVERSION:=$(shell dpkg-query --showformat='${Version}\n' --show hse | cut -d'-' -1)
-endif
-
-HSESHA:=.$(word 6,$(subst ., ,$(shell hse version)))
+HSESHA:=.$(shell hse -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
 ifeq ($(HSESHA),.)
     HSESHA:=.nogit
 endif
@@ -107,7 +101,7 @@ endif
 #
 # variables for debian
 #
-DEB_PKGNAME:=hse-ycsb-$(DEB_VERSION)_amd64
+DEB_PKGNAME:=hse-ycsb_$(DEB_VERSION)_amd64
 DEB_PKGDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)
 DEB_ROOTDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)/opt/hse-ycsb
 
@@ -145,9 +139,6 @@ rpm: dist srcs
 	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)/
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
-		--define="hseversion $(HSEVERSION)" \
-		--define="hsesha $(HSESHA)" \
-		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
 		--define="pkgrelease $(RPM_RELEASE)" \
 		--define="buildno $(JENKINS_BUILDNO)" \
