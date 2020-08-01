@@ -110,7 +110,7 @@ DEB_PKGDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)
 DEB_ROOTDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)/opt/hse-ycsb
 
 .PHONY: all check-hse cleansrcs dist help srcs rpm deb
-all:	rpm
+all:	package
 
 check-hse:
 	#
