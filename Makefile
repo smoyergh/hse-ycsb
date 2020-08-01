@@ -87,15 +87,19 @@ ifeq ($(YCSBSHA),.)
 endif
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
-HSE_YCSB_VER=$(shell cat hse/VERSION)
-HSE_BINDING_VER=$(shell cut -d . -f 4-  hse/VERSION)
+
+YCSB_VERSION_SUP=$(shell source hse/VERSION;echo $${YCSB_VERSION_SUP})
+HSE_BINDING_VERSION=$(shell source hse/VERSION;echo $${HSE_BINDING_VERSION})
+HSE_MIN_VERSION_SUP=$(shell source hse/VERSION;echo $${HSE_MIN_VERSION_SUP})
+
+HSE_YCSB_VERSION:=$(YCSB_VERSION_SUP).$(HSE_BINDING_VERSION)
 
 ifeq ($(REL_CANDIDATE), FALSE)
-    RPM_RELEASE:=${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
-    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+    RPM_RELEASE:=$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+    DEB_VERSION:=$(HSE_YCSB_VERSION)-$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
 else
-    RPM_RELEASE:=${JENKINS_BUILDNO}
-    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}
+    RPM_RELEASE:=$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}
+    DEB_VERSION:=$(HSE_YCSB_VERSION)-$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}
 endif
 
 #
@@ -125,9 +129,9 @@ cleanbuilds:
 	rm -rf $(TOPDIR)/{BUILD,RPMS,SRPMS}
 
 dist: check-hse
-	mvn versions:set-property -DnewVersion=$(HSE_BINDING_VER) -Dproperty=hse.version
+	mvn versions:set-property -DnewVersion=$(HSE_BINDING_VERSION) -Dproperty=hse.version
 	mvn install:install-file -Dfile=$(HSE_JAR) -DgroupId=test.org.hse\
-		-DartifactId=hse -Dversion=$(HSE_BINDING_VER) -Dpackaging=jar
+		-DartifactId=hse -Dversion=$(HSE_BINDING_VERSION) -Dpackaging=jar
 	mvn clean package
 
 help:
@@ -142,7 +146,7 @@ rpm: dist srcs
 		--define="_topdir $(TOPDIR)" \
 		--define="pkgrelease $(RPM_RELEASE)" \
 		--define="buildno $(JENKINS_BUILDNO)" \
-		--define="hseycsbversion $(HSE_YCSB_VER)" \
+		--define="hseycsbversion $(HSE_YCSB_VERSION)" \
 		$(RPMSRCDIR)/hse-ycsb-LargeRecordCount.spec
 
 deb: dist
