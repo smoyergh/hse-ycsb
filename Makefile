@@ -77,13 +77,7 @@ HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
 
 RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
 
-ifeq ($(RPM_QUERY), 0)
-    HSEVERSION:=$(shell rpm -q hse --qf "%{VERSION}")
-else
-    HSEVERSION:=$(shell dpkg-query --showformat='${Version}\n' --show hse | cut -d'-' -1)
-endif
-
-HSESHA:=.$(word 6,$(subst ., ,$(shell hse version)))
+HSESHA:=.$(shell hse -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
 ifeq ($(HSESHA),.)
     HSESHA:=.nogit
 endif
@@ -93,26 +87,30 @@ ifeq ($(YCSBSHA),.)
 endif
 TSTAMP:=.$(shell date +"%Y%m%d.%H%M%S")
 
-HSE_YCSB_VER=$(shell cat hse/VERSION)
-HSE_BINDING_VER=$(shell cut -d . -f 4-  hse/VERSION)
+
+YCSB_VERSION_SUP=$(shell source hse/VERSION;echo $${YCSB_VERSION_SUP})
+HSE_BINDING_VERSION=$(shell source hse/VERSION;echo $${HSE_BINDING_VERSION})
+HSE_MIN_VERSION_SUP=$(shell source hse/VERSION;echo $${HSE_MIN_VERSION_SUP})
+
+HSE_YCSB_VERSION:=$(YCSB_VERSION_SUP).$(HSE_BINDING_VERSION)
 
 ifeq ($(REL_CANDIDATE), FALSE)
-    RPM_RELEASE:=${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
-    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+    RPM_RELEASE:=$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
+    DEB_VERSION:=$(HSE_YCSB_VERSION)-$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}$(HSESHA)$(YCSBSHA)
 else
-    RPM_RELEASE:=${JENKINS_BUILDNO}
-    DEB_VERSION:=$(HSE_YCSB_VER)-${JENKINS_BUILDNO}
+    RPM_RELEASE:=$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}
+    DEB_VERSION:=$(HSE_YCSB_VERSION)-$(HSE_MIN_VERSION_SUP).${JENKINS_BUILDNO}
 endif
 
 #
 # variables for debian
 #
-DEB_PKGNAME:=hse-ycsb-$(DEB_VERSION)_amd64
+DEB_PKGNAME:=hse-ycsb_$(DEB_VERSION)_amd64
 DEB_PKGDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)
 DEB_ROOTDIR:=$(DEB_TOPDIR)/$(DEB_PKGNAME)/opt/hse-ycsb
 
 .PHONY: all check-hse cleansrcs dist help srcs rpm deb
-all:	rpm
+all:	package
 
 check-hse:
 	#
@@ -131,9 +129,9 @@ cleanbuilds:
 	rm -rf $(TOPDIR)/{BUILD,RPMS,SRPMS}
 
 dist: check-hse
-	mvn versions:set-property -DnewVersion=$(HSE_BINDING_VER) -Dproperty=hse.version
+	mvn versions:set-property -DnewVersion=$(HSE_BINDING_VERSION) -Dproperty=hse.version
 	mvn install:install-file -Dfile=$(HSE_JAR) -DgroupId=test.org.hse\
-		-DartifactId=hse -Dversion=$(HSE_BINDING_VER) -Dpackaging=jar
+		-DartifactId=hse -Dversion=$(HSE_BINDING_VERSION) -Dpackaging=jar
 	mvn clean package
 
 help:
@@ -145,13 +143,10 @@ rpm: dist srcs
 	cp distribution/target/ycsb-0.17.0.tar.gz $(RPMSRCDIR)/
 	QA_RPATHS=0x0002 rpmbuild -vv -ba \
 		--define="tstamp $(TSTAMP)" \
-		--define="hseversion $(HSEVERSION)" \
-		--define="hsesha $(HSESHA)" \
-		--define="ycsbsha $(YCSBSHA)" \
 		--define="_topdir $(TOPDIR)" \
 		--define="pkgrelease $(RPM_RELEASE)" \
 		--define="buildno $(JENKINS_BUILDNO)" \
-		--define="hseycsbversion $(HSE_YCSB_VER)" \
+		--define="hseycsbversion $(HSE_YCSB_VERSION)" \
 		$(RPMSRCDIR)/hse-ycsb.spec
 
 deb: dist
