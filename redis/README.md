@@ -37,6 +37,9 @@ Set host, port, password, and cluster mode in the workload you plan to run.
 
 - `redis.host`
 - `redis.port`
+- `redis.timeout`
+  * Set the value for connection timeout and socket timeout in ms.
+  * Default is `2000`.
 - `redis.password`
   * Don't set the password if redis auth is disabled.
 - `redis.cluster`
