@@ -73,11 +73,11 @@ TOOLSDIR:=/shared/tools
 #
 # variables for prebuilt jars/binaries
 #
-HSE_JAR:="/usr/share/hse/jni/hsejni.jar"
+HSE_JAR?="/opt/hse-1/lib64/hsejni.jar"
 
 RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
 
-HSESHA:=.$(shell hse -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
+HSESHA:=.$(shell hse1 -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
 ifeq ($(HSESHA),.)
     HSESHA:=.nogit
 endif
@@ -116,7 +116,7 @@ check-hse:
 	#
 	# User or Jenkins must install hse before executing this makefile.
 	#
-	@if [ ! -f /usr/share/hse/jni/hsejni.jar ]; \
+	@if [ ! -f $(HSE_JAR) ]; \
 	then \
 	    echo "Missing hse package!  Cannot build!"; \
 	    exit 1; \
