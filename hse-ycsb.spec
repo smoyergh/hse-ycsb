@@ -13,7 +13,7 @@ Group: Unspecified
 Vendor: Micron Technology, Inc.
 Url: https://github.com/hse-project/hse-ycsb
 
-Requires: java-headless javapackages-tools python2 hse
+Requires: java-headless javapackages-tools python2
 
 Source0: ycsb-0.17.0.tar.gz
 
