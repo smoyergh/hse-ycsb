@@ -100,24 +100,19 @@ public class HseYcsbClient extends DB {
     return props.getProperty("hse.kvdb_home");
   }
 
-  private String getHseParamsParam(Properties props) {
-    String hseParams = props.getProperty("hse.params");
+  private String getHseConfigParam(Properties props) {
+    String hseConfig = props.getProperty("hse.config");
 
-    if (hseParams != null) {
-      hseParams = hseParams.replace(';', ',');
+    if (hseConfig != null) {
+      hseConfig = hseConfig.replace(';', ',');
     }
 
-    return hseParams;
+    return hseConfig;
   }
 
   private String getCursorPfxLenParam(Properties props) {
     String pfxlen = props.getProperty("hse.cursor_pfx_len");
     return pfxlen;
-  }
-
-  private String getConfigPathParam(Properties props) {
-    String configPath = props.getProperty("hse.config_path");
-    return configPath;
   }
 
   /**
@@ -151,30 +146,25 @@ public class HseYcsbClient extends DB {
 
         String kvsPath = kvdbHome + "/" + kvsName;
 
-        String hseParams = getHseParamsParam(props);
-        if (null == hseParams) {
-          LOGGER.info("property hse.params not specified, using default configuration");
-          hseParams = "";
+        String hseConfig = getHseConfigParam(props);
+        if (null == hseConfig) {
+          LOGGER.info("property hse.config not specified, using default configuration");
+          hseConfig = "";
         } else {
-          hseParams = hseParams.trim();
+          hseConfig = hseConfig.trim();
         }
 
         // append pfx_len param if not present
         String paramPfxLen = "kvdb.kvs.default.pfx_len=";
-        if (hseParams.isEmpty()) {
-          hseParams = paramPfxLen + defKvsPfxLen;
-        } else if (!hseParams.contains(paramPfxLen)){
-          hseParams += "," + paramPfxLen + defKvsPfxLen;
+        if (hseConfig.isEmpty()) {
+          hseConfig = paramPfxLen + defKvsPfxLen;
+        } else if (!hseConfig.contains(paramPfxLen)){
+          hseConfig += "," + paramPfxLen + defKvsPfxLen;
         }
 
         String pfxlen = getCursorPfxLenParam(props);
         if (pfxlen != null) {
           cursorPfxLen = Integer.parseInt(pfxlen);
-        }
-
-        String configPath = getConfigPathParam(props);
-        if (null == configPath) {
-          configPath = "";
         }
 
         if (cursorPfxLen > 0) {
@@ -190,10 +180,10 @@ public class HseYcsbClient extends DB {
             CoreWorkload.SCAN_PROPORTION_PROPERTY_DEFAULT));
         if (scanProportion > 0) {
           /* Parameter for workloads with scans, like workload E. */
-          if (!hseParams.isEmpty() && !hseParams.endsWith(",")) {
-            hseParams += ",";
+          if (!hseConfig.isEmpty() && !hseConfig.endsWith(",")) {
+            hseConfig += ",";
           }
-          hseParams += "kvdb.csched_vb_scatter_pct=1,kvdb.kvs.default.cn_cursor_vra=0";
+          hseConfig += "kvdb.csched_vb_scatter_pct=1,kvdb.kvs.default.cn_cursor_vra=0";
         }
 
         String fieldCount = props.getProperty(
@@ -209,11 +199,11 @@ public class HseYcsbClient extends DB {
         int readFieldCount = Integer.parseInt(fieldCount);
         valBufSize = readFieldCount * (Integer.parseInt(fieldLength) + 20);
 
-        LOGGER.info("hse.params=\"" + hseParams + "\"");
+        LOGGER.info("hse.config=\"" + hseConfig + "\"");
 
         try {
           hseAPI.init(valBufSize);
-          hseAPI.open((short) 1, kvdbHome, kvsPath, hseParams, configPath);
+          hseAPI.open((short) 1, kvdbHome, kvsPath, hseConfig);
         } catch (HSEGenException e) {
           e.printStackTrace();
           LOGGER.error("Could not open HSE with kvs path ["
