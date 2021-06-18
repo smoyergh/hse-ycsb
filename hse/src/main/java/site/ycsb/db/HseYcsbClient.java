@@ -144,8 +144,6 @@ public class HseYcsbClient extends DB {
           System.exit(1);
         }
 
-        String kvsPath = kvdbHome + "/" + kvsName;
-
         String hseConfig = getHseConfigParam(props);
         if (null == hseConfig) {
           LOGGER.info("property hse.config not specified, using default configuration");
@@ -203,11 +201,11 @@ public class HseYcsbClient extends DB {
 
         try {
           hseAPI.init(valBufSize);
-          hseAPI.open((short) 1, kvdbHome, kvsPath, hseConfig);
+          hseAPI.open((short) 1, kvdbHome, kvsName, hseConfig);
         } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.error("Could not open HSE with kvs path ["
-              + kvsPath + "]");
+          LOGGER.error("Could not open HSE with kvs name ["
+              + kvsName + "]");
           System.exit(1);
         }
       }
