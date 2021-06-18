@@ -100,21 +100,6 @@ public class HseYcsbClient extends DB {
     return props.getProperty("hse.kvdb_home");
   }
 
-  private String getHseConfigParam(Properties props) {
-    String hseConfig = props.getProperty("hse.config");
-
-    if (hseConfig != null) {
-      hseConfig = hseConfig.replace(';', ',');
-    }
-
-    return hseConfig;
-  }
-
-  private String getCursorPfxLenParam(Properties props) {
-    String pfxlen = props.getProperty("hse.cursor_pfx_len");
-    return pfxlen;
-  }
-
   /**
    * Initialize any state for this DB.
    * Called once per DB instance; there is one DB instance per client thread.
@@ -144,44 +129,14 @@ public class HseYcsbClient extends DB {
           System.exit(1);
         }
 
-        String hseConfig = getHseConfigParam(props);
-        if (null == hseConfig) {
-          LOGGER.info("property hse.config not specified, using default configuration");
-          hseConfig = "";
-        } else {
-          hseConfig = hseConfig.trim();
-        }
-
-        // append pfx_len param if not present
-        String paramPfxLen = "kvdb.kvs.default.pfx_len=";
-        if (hseConfig.isEmpty()) {
-          hseConfig = paramPfxLen + defKvsPfxLen;
-        } else if (!hseConfig.contains(paramPfxLen)){
-          hseConfig += "," + paramPfxLen + defKvsPfxLen;
-        }
-
-        String pfxlen = getCursorPfxLenParam(props);
-        if (pfxlen != null) {
-          cursorPfxLen = Integer.parseInt(pfxlen);
-        }
-
-        if (cursorPfxLen > 0) {
-          if (cursorPfxLen <= defYCSBPfx.length()) {
-            LOGGER.error("Cursor Prefix length must be greater than the length " +
-                         "of the default YCSB prefix, " + defYCSBPfx);
-            System.exit(1);
-          }
-        }
+        String hseConfig = "kvs.create.pfx_len=" + defKvsPfxLen;
 
         final double scanProportion = Double.valueOf(props.getProperty(
             CoreWorkload.SCAN_PROPORTION_PROPERTY,
             CoreWorkload.SCAN_PROPORTION_PROPERTY_DEFAULT));
         if (scanProportion > 0) {
           /* Parameter for workloads with scans, like workload E. */
-          if (!hseConfig.isEmpty() && !hseConfig.endsWith(",")) {
-            hseConfig += ",";
-          }
-          hseConfig += "kvdb.csched_vb_scatter_pct=1,kvdb.kvs.default.cn_cursor_vra=0";
+          hseConfig += ",kvdb.open.csched_vb_scatter_pct=1,kvs.open.cn_cursor_vra=0";
         }
 
         String fieldCount = props.getProperty(
@@ -197,15 +152,15 @@ public class HseYcsbClient extends DB {
         int readFieldCount = Integer.parseInt(fieldCount);
         valBufSize = readFieldCount * (Integer.parseInt(fieldLength) + 20);
 
-        LOGGER.info("hse.config=\"" + hseConfig + "\"");
+        LOGGER.info("HSE default config=\"" + hseConfig + "\"");
 
         try {
           hseAPI.init(valBufSize);
           hseAPI.open((short) 1, kvdbHome, kvsName, hseConfig);
         } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.error("Could not open HSE with kvs name ["
-              + kvsName + "]");
+          LOGGER.error("Could not open HSE with KVDB home [" + kvdbHome +
+                       "] and KVS name [" + kvsName + "]");
           System.exit(1);
         }
       }
