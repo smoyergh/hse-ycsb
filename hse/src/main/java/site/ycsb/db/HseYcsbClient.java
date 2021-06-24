@@ -44,8 +44,6 @@ public class HseYcsbClient extends DB {
   private static String defYCSBPfx = "user";
   private static int defKvsPfxLen = 7;
   private static int defCursorPfxLen = 7;
-    
-  
   private static int cursorPfxLen = defCursorPfxLen;
 
   private static String getCursorPfx(String key) {
@@ -98,28 +96,8 @@ public class HseYcsbClient extends DB {
     return defYCSBPfx + Long.toString(nextPfx);
   }
 
-  private String getMpoolNameParam(Properties props) {
-    return props.getProperty("hse.mpool_name");
-  }
-
-  private String getHseParamsParam(Properties props) {
-    String hseParams = props.getProperty("hse.params");
-
-    if (hseParams != null) {
-      hseParams = hseParams.replace(';', ',');
-    }
-
-    return hseParams;
-  }
-
-  private String getCursorPfxLenParam(Properties props) {
-    String pfxlen = props.getProperty("hse.cursor_pfx_len");
-    return pfxlen;
-  }
-  
-  private String getConfigPathParam(Properties props) {
-    String configPath = props.getProperty("hse.config_path");
-    return configPath;
+  private String getKvdbHomeParam(Properties props) {
+    return props.getProperty("hse.kvdb_home");
   }
 
   /**
@@ -137,9 +115,9 @@ public class HseYcsbClient extends DB {
 
         Properties props = getProperties();
 
-        String mpoolName = getMpoolNameParam(props);
-        if(null == mpoolName) {
-          LOGGER.error("hse.mpool_name not configured");
+        String kvdbHome = getKvdbHomeParam(props);
+        if(null == kvdbHome) {
+          LOGGER.error("hse.kvdb_home not configured");
           System.exit(1);
         }
 
@@ -151,50 +129,14 @@ public class HseYcsbClient extends DB {
           System.exit(1);
         }
 
-        String kvsPath = mpoolName + "/" + kvsName;
-
-        String hseParams = getHseParamsParam(props);
-        if (null == hseParams) {
-          LOGGER.info("property hse.params not specified, using default configuration");
-          hseParams = "";
-        } else {
-          hseParams = hseParams.trim();
-        }
-
-        // append kvs.pfx_len if not present
-        if (hseParams.isEmpty()) {
-          hseParams = "kvs.pfx_len=" + defKvsPfxLen;
-        } else if (!hseParams.contains("kvs.pfx_len=")){
-          hseParams += ",kvs.pfx_len=" + defKvsPfxLen;
-        }
-
-        String pfxlen = getCursorPfxLenParam(props);
-        if (pfxlen != null) {
-          cursorPfxLen = Integer.parseInt(pfxlen);
-        }
-        
-        String configPath = getConfigPathParam(props);
-        if (null == configPath) {
-          configPath = "";
-        }
-
-        if (cursorPfxLen > 0) {
-          if (cursorPfxLen <= defYCSBPfx.length()) {
-            LOGGER.error("Cursor Prefix length must be greater than the length " +
-                         "of the default YCSB prefix, " + defYCSBPfx);
-            System.exit(1);
-          }
-        }
+        String hseConfig = "kvs.create.pfx_len=" + defKvsPfxLen;
 
         final double scanProportion = Double.valueOf(props.getProperty(
             CoreWorkload.SCAN_PROPORTION_PROPERTY,
             CoreWorkload.SCAN_PROPORTION_PROPERTY_DEFAULT));
         if (scanProportion > 0) {
           /* Parameter for workloads with scans, like workload E. */
-          if (!hseParams.isEmpty() && !hseParams.endsWith(",")) {
-            hseParams += ",";
-          }
-          hseParams += "kvdb.csched_vb_scatter_pct=1,kvs.cn_cursor_vra=0";
+          hseConfig += ",kvdb.open.csched_vb_scatter_pct=1,kvs.open.cn_cursor_vra=0";
         }
 
         String fieldCount = props.getProperty(
@@ -210,15 +152,15 @@ public class HseYcsbClient extends DB {
         int readFieldCount = Integer.parseInt(fieldCount);
         valBufSize = readFieldCount * (Integer.parseInt(fieldLength) + 20);
 
-        LOGGER.info("hse.params=\"" + hseParams + "\"");
-        
+        LOGGER.info("HSE default config=\"" + hseConfig + "\"");
+
         try {
           hseAPI.init(valBufSize);
-          hseAPI.open((short) 1, mpoolName, kvsPath, hseParams, configPath);
+          hseAPI.open((short) 1, kvdbHome, kvsName, hseConfig);
         } catch (HSEGenException e) {
           e.printStackTrace();
-          LOGGER.error("Could not open HSE with kvs path ["
-              + kvsPath + "]");
+          LOGGER.error("Could not open HSE with KVDB home [" + kvdbHome +
+                       "] and KVS name [" + kvsName + "]");
           System.exit(1);
         }
       }
