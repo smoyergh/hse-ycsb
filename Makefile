@@ -77,7 +77,7 @@ HSE_JAR?="/opt/hse/lib64/hsejni.jar"
 
 RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
 
-HSESHA:=.$(shell hse1 -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
+HSESHA:=.$(shell hse -Vv | grep '^sha' | awk '{print $$2}' | cut -c1-7)
 ifeq ($(HSESHA),.)
     HSESHA:=.nogit
 endif
