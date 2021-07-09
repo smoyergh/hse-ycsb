@@ -73,7 +73,7 @@ TOOLSDIR:=/shared/tools
 #
 # variables for prebuilt jars/binaries
 #
-HSE_JAR?="/opt/hse-1/lib64/hsejni.jar"
+HSE_JAR?="/opt/hse/lib64/hsejni.jar"
 
 RPM_QUERY:=$(shell rpm -q hse >/dev/null; echo $$?)
 
