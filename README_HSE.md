@@ -21,6 +21,8 @@ You must
 
 ## Installing YCSB Dependencies
 
+YCSB requires Maven 3 to build.
+
 > TODO: This needs consideration.  The goal is that contributors will
 > port to many platforms and distros, and it is impractical to identify
 > all the resulting dependencies.  What Alex and I discussed as an idea
@@ -50,7 +52,7 @@ Build YCSB with HSE as follows
 
 Extract the resulting tarball to a convenient directory.
 
-    $ tar xf ./distribution/target/ycsb-0.17.0.tar.gz -C /tmp
+    $ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /tmp
 
 
 ## Configuring YCSB Options
@@ -62,23 +64,21 @@ YCSB with HSE adds the following command-line parameters to `ycsb`.
 
 ## YCSB Data Storage
 
-YCSB data is stored in an HSE KVDB.  This KVDB must created manually before
-running the `ycsb` command.
+YCSB data is stored in an HSE KVDB.  This KVDB must be created before
+running the `ycsb` command.  However, `ycsb` will create the required KVS
+in the KVDB.
 
 
 ## Running YCSB with HSE
 
 Create a KVDB for running YCSB.
 
-    $ cd /tmp/ycsb-0.17.0
+    $ cd /tmp/ycsb-hse-binding-0.17.0
     $ mkdir ycsbKVDB
     $ hse -C ./ycsbKVDB kvdb create
 
 Run YCSB Workload A as follows.
 
     $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=./ycsbKVDB
+    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=./ycsbKVDB
 
-> TODO: This does not actually work on my RHEL 8.1 system.  I keep getting
-> the error "no hsejni_c in java.library.path".  I need to get this sorted
-> out, but for now my goal is to create the initial template for this file.
-> We'll address the TODOs shortly.
