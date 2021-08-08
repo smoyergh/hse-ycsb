@@ -49,7 +49,7 @@ the packages required to build HSE.
 
     $ sudo dnf install maven python2
 
-### Ubuntu 18.04
+### Ubuntu 18.04 Packages
 
     $ sudo apt install maven
 
