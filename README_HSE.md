@@ -115,9 +115,9 @@ Run YCSB Workload A as follows.
 > `LD_LIBRARY_PATH` correctly.
 
 
-## YCSB Storage and Benchmarking Tips
+## Storage and Benchmarking Tips
 
 Please see the HSE [project documentation](https://hse-project.github.io/)
-for information on configuring KVDB storage and running benchmarks.
+for information on configuring HSE storage and running benchmarks.
 It contains important details on HSE file system requirements, configuration
 options, performance tuning, and best practices for benchmarking.
