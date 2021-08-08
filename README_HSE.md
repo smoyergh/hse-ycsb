@@ -20,27 +20,38 @@ You must
 * Use HSE version 2.0 or higher
 * Perform `meson setup` specifying the `-Dycsb=true` option
 
+If you previously built HSE without the `-Dycsb=true` option,
+run the following commands in the `hse` repo directory.
+
+    $ poetry shell
+    $ meson setup <builddir> --reconfigure -Dycsb=true
+    $ meson compile -C <builddir>
+    $ meson install -C <builddir>
+    $ exit
+
+In the above, `<builddir>` is the build directory you specified when
+previously compiling HSE, which is commonly named `build`.
+The default install directory is `/opt/hse`, which you can override
+with the `--destdir` option to `meson install`.
+
 
 ## Installing YCSB Dependencies
 
-You may need to install certain tools to build YCSB on your platform.
+Depending on your Linux distribution and environment, you may need to
+install additional packages to build YCSB.
 For example, building YCSB requires Maven 3.
 
-You may also need to install certain libraries.  Below are representative
-examples to help you determine what is needed for your particular platform.
+To help you with this process, below are examples of the packages required
+for several common Linux distributions.  These are **in addition to**
+the packages required to build HSE.
 
-### RHEL 8
+### RHEL 8 Packages
 
-    $ sudo dnf install maven rpm-build
+    $ sudo dnf install maven python2
 
 ### Ubuntu 18.04
 
-    $ sudo apt-get install maven
-
-
-> TODO: Validate if this is the minimum list needed for a vanilla
-> RHEL 8 and Ubuntu 18.04 build with Maven.  E.g., we can probably
-> eliminate rpm-build, but there could be other packages we need to add.
+    $ sudo apt install maven
 
 
 ## Installing YCSB with HSE
@@ -57,23 +68,26 @@ For example
     $ cd hse-ycsb
     $ git checkout rA.B.C.D.E-hse
 
-Build YCSB with HSE as follows, which assumes HSE is installed in
-directory `/opt/hse`:
+Build YCSB with HSE as follows.
 
     $ HSE_JAR="/opt/hse/lib64/hsejni.jar"
     $ mvn install:install-file -Dfile="${HSE_JAR}" -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
     $ mvn -pl hse -am clean package
 
+> The path to `hsejni.jar` depends on both where you installed
+> HSE and your Linux distribution.  You need to locate this file to
+> set `HSE_JAR` correctly.
+
 Extract the resulting tarball to a convenient directory.
 
-    $ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /tmp
+    $ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /opt/ycsb
 
 
 ## Configuring YCSB Options
 
 YCSB with HSE adds the following command-line parameters to `ycsb`.
 
-* `hse.kvdb_home` is the path to the KVDB home directory storing the YCSB data
+* `hse.kvdb_home` is the path to the KVDB home directory for use with YCSB
 
 
 ## YCSB Data Storage
@@ -85,14 +99,25 @@ in the KVDB.
 
 ## Running YCSB with HSE
 
-Create a KVDB for running YCSB.
+Create a KVDB for use with YCSB.
 
-    $ cd /tmp/ycsb-hse-binding-0.17.0
+    $ cd /opt/ycsb/ycsb-hse-binding-0.17.0
     $ mkdir ycsbKVDB
-    $ hse -C ./ycsbKVDB kvdb create
+    $ hse -C ${PWD}/ycsbKVDB kvdb create
 
 Run YCSB Workload A as follows.
 
-    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=./ycsbKVDB
-    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=./ycsbKVDB
+    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
 
+> The HSE library path depends on both where you installed HSE and your
+> Linux distribution.  You need to locate this directory to set
+> `LD_LIBRARY_PATH` correctly.
+
+
+## YCSB Storage and Benchmarking Tips
+
+Please see the HSE [project documentation](https://hse-project.github.io/)
+for information on configuring KVDB storage and running benchmarks.
+It contains important details on HSE file system requirements, configuration
+options, performance tuning, and best practices for benchmarking.

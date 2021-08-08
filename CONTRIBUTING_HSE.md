@@ -12,7 +12,6 @@ to any repo in the HSE project.
 
 ## Information on Contributing to this Repo
 
-> TODO: Add build instructions for test tools and tests.  Also document
-> how to test in a way that mimics what is done for each PR.  Contributors
-> should be encouraged to run those same tests prior to submitted a PR.
-
+Please limit your changes to files in the `hse-ycsb/hse` directory.
+We have not modified the YCSB benchmark itself, only added support
+for HSE.
