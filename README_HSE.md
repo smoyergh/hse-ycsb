@@ -23,11 +23,13 @@ You must
 If you previously built HSE without the `-Dycsb=true` option,
 run the following commands in the `hse` repo directory.
 
-    $ poetry shell
-    $ meson setup <builddir> --reconfigure -Dycsb=true
-    $ meson compile -C <builddir>
-    $ meson install -C <builddir>
-    $ exit
+```shell
+$ poetry shell
+$ meson setup <builddir> --reconfigure -Dycsb=true
+$ meson compile -C <builddir>
+$ meson install -C <builddir>
+$ exit
+```
 
 In the above, `<builddir>` is the build directory you specified when
 previously compiling HSE, which is commonly named `build`.
@@ -47,11 +49,15 @@ the packages required to build HSE.
 
 ### RHEL 8 Packages
 
-    $ sudo dnf install maven python2
+```shell
+$ sudo dnf install maven python2
+```
 
 ### Ubuntu 18.04 Packages
 
-    $ sudo apt install maven
+```shell
+$ sudo apt install maven
+```
 
 
 ## Installing YCSB with HSE
@@ -64,15 +70,19 @@ and checkout the latest release tag.  Releases are named `rA.B.C.D.E-hse` where
 
 For example
 
-    $ git clone https://github.com/hse-project/hse-ycsb.git
-    $ cd hse-ycsb
-    $ git checkout rA.B.C.D.E-hse
+```shell
+$ git clone https://github.com/hse-project/hse-ycsb.git
+$ cd hse-ycsb
+$ git checkout rA.B.C.D.E-hse
+```
 
 Build YCSB with HSE as follows.
 
-    $ HSE_JAR="/opt/hse/lib64/hsejni.jar"
-    $ mvn install:install-file -Dfile="${HSE_JAR}" -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
-    $ mvn -pl hse -am clean package
+```shell
+$ HSE_JAR="/opt/hse/lib64/hsejni.jar"
+$ mvn install:install-file -Dfile="${HSE_JAR}" -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
+$ mvn -pl hse -am clean package
+```
 
 > The path to `hsejni.jar` depends on both where you installed
 > HSE and your Linux distribution.  You need to locate this file to
@@ -80,7 +90,9 @@ Build YCSB with HSE as follows.
 
 Extract the resulting tarball to a convenient directory.
 
-    $ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /opt/ycsb
+```shell
+$ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /opt/ycsb
+```
 
 
 ## Configuring YCSB Options
@@ -101,14 +113,18 @@ in the KVDB.
 
 Create a KVDB for use with YCSB.
 
-    $ cd /opt/ycsb/ycsb-hse-binding-0.17.0
-    $ mkdir ycsbKVDB
-    $ hse -C ${PWD}/ycsbKVDB kvdb create
+```shell
+$ cd /opt/ycsb/ycsb-hse-binding-0.17.0
+$ mkdir ycsbKVDB
+$ hse -C ${PWD}/ycsbKVDB kvdb create
+```
 
 Run YCSB Workload A as follows.
 
-    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
-    $ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+```shell
+$ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+$ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+```
 
 > The HSE library path depends on both where you installed HSE and your
 > Linux distribution.  You need to locate this directory to set
