@@ -3,7 +3,7 @@ name: Bug report
 about: Create a bug report to help us improve our project
 ---
 
-<!-- Thank you for opening an issue. Please be sure to review our [contribution guidelines](CONTRIBUTING.md). -->
+<!-- Thank you for opening an issue. Please be sure to review our [contribution guidelines](CONTRIBUTING_HSE.md). -->
 
 #### Description of the issue
 
