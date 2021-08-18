@@ -22,15 +22,14 @@ jobs:
 
     - uses: actions/checkout@v2
       with:
-        repository: bhaveshvasandani/workflows
-        ref: hsemaster-fix-shell
+        repository: hse-project/hse
+        ref: master
         path: hse
 
     - name: Build and install hse
       run: |
         cd hse
         poetry install
-        sed -i.bak "s,ssh://git@bitbucket.micron.com/hse/hse-python.git,https://${{ secrets.GH_TOKEN }}@github.com/bhaveshvasandani/hse-python.git,g" subprojects/hse-python.wrap
         poetry run meson builddir -Dycsb=true -Dinstall-tools=true -Dinstall-configs=true
         poetry run meson install -C builddir --destdir="${{ runner.temp }}/hse"
 
@@ -47,3 +46,18 @@ jobs:
         mvn install:install-file -Dfile=${{ runner.temp }}/hse/opt/hse/lib/x86_64-linux-gnu/hsejni.jar -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
         mvn -pl hse -am clean package
 
+  checkoss:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: check for license
+      run: |
+        hse/checkoss "${{ runner.temp }}" ./
+
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: checkoss-errors
+        path: "${{ runner.temp }}"
