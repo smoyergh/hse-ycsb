@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
 # Run this on root of source
-default_src_root="./"
-SRC_ROOT=$(realpath ${1:-$default_src_root})
+SRC_ROOT=$(realpath ${1:-"./"})
 
 # Print the usage of offensive language
 bad_words=$(curl -s "https://www.cs.cmu.edu/~biglou/resources/bad-words.txt")
 bad_words=$(grep -v -f "${SRC_ROOT}/hse/checkoss-ignore-words.txt" <<< "${bad_words[*]}")
 files=$(git -C "${SRC_ROOT}" ls-files | grep -E 'hse/')
 pushd "${SRC_ROOT}" > /dev/null
-check_bad_words=$(echo "${files}" | xargs egrep -Hinw $(echo ${bad_words}|tr ' ' '|'))
+check_bad_words=$(echo "${files}" | xargs egrep -Hinw $(echo ${bad_words} | tr ' ' '|'))
 popd > /dev/null
 
-# Check for valid license and Copyright
-src_files=$(git -C "${SRC_ROOT}" ls-files | grep 'hse/' | grep -E '\.(c|h|py|sh|java)$')
+# Check for valid license and copyright
+src_files=$(git -C "${SRC_ROOT}" ls-files | grep 'hse' | grep -E '\.(c|h|py|sh|java)$')
 pushd "${SRC_ROOT}" > /dev/null
 for file in ${src_files}; do
     if ! head -10 "${file}" | grep -qE "\s*[/#*]*\s*SPDX-License-Identifier:\s+Apache-2.0"; then 
