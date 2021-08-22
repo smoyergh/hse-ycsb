@@ -24,11 +24,11 @@ If you previously built HSE without the `-Dycsb=true` option,
 run the following commands in the `hse` repo directory.
 
 ```shell
-$ poetry shell
-$ meson setup <builddir> --reconfigure -Dycsb=true
-$ meson compile -C <builddir>
-$ meson install -C <builddir>
-$ exit
+poetry shell
+meson setup <builddir> --reconfigure -Dycsb=true
+meson compile -C <builddir>
+meson install -C <builddir>
+exit
 ```
 
 In the above, `<builddir>` is the build directory you specified when
@@ -50,13 +50,13 @@ the packages required to build HSE.
 ### RHEL 8 Packages
 
 ```shell
-$ sudo dnf install maven python2
+sudo dnf install maven python2
 ```
 
 ### Ubuntu 18.04 Packages
 
 ```shell
-$ sudo apt install maven
+sudo apt install maven
 ```
 
 
@@ -71,17 +71,17 @@ and checkout the latest release tag.  Releases are named `rA.B.C.D.E-hse` where
 For example
 
 ```shell
-$ git clone https://github.com/hse-project/hse-ycsb.git
-$ cd hse-ycsb
-$ git checkout rA.B.C.D.E-hse
+git clone https://github.com/hse-project/hse-ycsb.git
+cd hse-ycsb
+git checkout rA.B.C.D.E-hse
 ```
 
 Build YCSB with HSE as follows.
 
 ```shell
-$ HSE_JAR="/opt/hse/lib64/hsejni.jar"
-$ mvn install:install-file -Dfile="${HSE_JAR}" -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
-$ mvn -pl hse -am clean package
+HSE_JAR="/opt/hse/lib64/hsejni.jar"
+mvn install:install-file -Dfile="${HSE_JAR}" -DgroupId=test.org.hse -DartifactId=hse -Dversion=0.0 -Dpackaging=jar
+mvn -pl hse -am clean package
 ```
 
 > The path to `hsejni.jar` depends on both where you installed
@@ -91,7 +91,7 @@ $ mvn -pl hse -am clean package
 Extract the resulting tarball to a convenient directory.
 
 ```shell
-$ tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /opt/ycsb
+tar xf ./hse/target/ycsb-hse-binding-0.17.0.tar.gz -C /opt/ycsb
 ```
 
 
@@ -114,16 +114,16 @@ in the KVDB.
 Create a KVDB for use with YCSB.
 
 ```shell
-$ cd /opt/ycsb/ycsb-hse-binding-0.17.0
-$ mkdir ycsbKVDB
-$ hse -C ${PWD}/ycsbKVDB kvdb create
+cd /opt/ycsb/ycsb-hse-binding-0.17.0
+mkdir ycsbKVDB
+hse -C ${PWD}/ycsbKVDB kvdb create
 ```
 
 Run YCSB Workload A as follows.
 
 ```shell
-$ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
-$ LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb load hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
+LD_LIBRARY_PATH=/opt/hse/lib64 python2 ./bin/ycsb run hse -P workloads/workloada -p hse.kvdb_home=${PWD}/ycsbKVDB
 ```
 
 > The HSE library path depends on both where you installed HSE and your
