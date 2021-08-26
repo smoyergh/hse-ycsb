@@ -47,7 +47,7 @@ jobs:
         mvn -pl hse -am clean package
 
   checkoss:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
