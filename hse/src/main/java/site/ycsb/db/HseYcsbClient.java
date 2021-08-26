@@ -129,7 +129,7 @@ public class HseYcsbClient extends DB {
           System.exit(1);
         }
 
-        String hseConfig = "kvs.create.pfx_len=" + defKvsPfxLen;
+        String hseConfig = "kvs.create.prefix.length=" + defKvsPfxLen;
 
         final double scanProportion = Double.valueOf(props.getProperty(
             CoreWorkload.SCAN_PROPORTION_PROPERTY,
