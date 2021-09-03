@@ -1,8 +1,0 @@
-Package: hse-ycsb
-Version: @VERSION@
-Section: database
-Priority: optional
-Architecture: amd64
-Maintainer: Micron Technology, Inc.
-Description: YCSB with bindings for Heterogeneous-memory Storage Engine (HSE)
-Depends: default-jre
