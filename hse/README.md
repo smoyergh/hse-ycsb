@@ -116,7 +116,7 @@ Create a KVDB for use with YCSB.
 ```shell
 cd /opt/ycsb/ycsb-hse-binding-0.17.0
 mkdir ycsbKVDB
-hse -C ${PWD}/ycsbKVDB kvdb create
+hse kvdb create ${PWD}/ycsbKVDB
 ```
 
 Run YCSB Workload A as follows.
